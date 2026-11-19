@@ -1,3 +1,5 @@
+import type { ReviewMessage } from '../utils/reviewLanguage';
+import { useTranslate } from './ReviewLanguage';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ExternalLink, Pause, Play } from 'lucide-react';
@@ -50,7 +52,7 @@ const DEMO_ASPECT = 1280 / 800;
 interface AgentCopy {
   readonly name: string;
   /** How the session stays free. OpenCode's plan review still holds the session. */
-  readonly freeLine: string;
+  readonly freeLine: ReviewMessage;
 }
 
 const AGENT_COPY: Record<AskSessionAgent, AgentCopy> = {
@@ -87,6 +89,7 @@ interface AskSessionAnnouncementDialogProps {
  * reduced motion, in which case the poster waits behind a play button.
  */
 function DemoPlayer({ reducedMotion }: { readonly reducedMotion: boolean }) {
+  const t = useTranslate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(!reducedMotion);
   const [failed, setFailed] = useState(false);
@@ -140,14 +143,14 @@ function DemoPlayer({ reducedMotion }: { readonly reducedMotion: boolean }) {
             className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border bg-card px-4 text-sm font-medium text-foreground outline-none hover:bg-surface-1 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <XMark className="size-3.5" />
-            Watch on X
+            {t('Watch on X')}
           </a>
         </div>
       ) : (
         <button
           type="button"
           onClick={toggle}
-          aria-label={playing ? 'Pause demo' : 'Play demo'}
+          aria-label={playing ? t('Pause demo') : t('Play demo')}
           data-ask-session-playback={playing ? 'pause' : 'play'}
           className={
             playing
@@ -172,6 +175,7 @@ export function AskSessionAnnouncementDialog({
   onDismiss,
   reducedMotion,
 }: AskSessionAnnouncementDialogProps) {
+  const t = useTranslate();
   const dismissRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const onDismissRef = useRef(onDismiss);
@@ -268,14 +272,13 @@ export function AskSessionAnnouncementDialog({
             id="ask-session-announcement-title"
             className="text-balance text-xl font-semibold tracking-tight sm:text-2xl"
           >
-            Ask {copy.name}, right from Plannotator
+            {t('Ask {agent}, right from Plannotator', { agent: copy.name })}
           </h2>
           <p
             id="ask-session-announcement-description"
             className="mt-1 text-pretty text-sm leading-relaxed text-muted-foreground"
           >
-            Ask AI now goes to the {copy.name} session that opened Plannotator, and the answer
-            streams back here. {copy.freeLine}
+            {t('Ask AI now goes to the {agent} session that opened Plannotator, and the answer streams back here.', { agent: copy.name })} {t(copy.freeLine)}
           </p>
 
           <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
@@ -284,7 +287,7 @@ export function AskSessionAnnouncementDialog({
               className="inline-flex min-w-0 items-center gap-2 text-sm text-foreground"
             >
               <span className="size-2 shrink-0 rounded-full bg-success" aria-hidden="true" />
-              This session is connected. Open Ask AI to try it.
+              {t('This session is connected. Open Ask AI to try it.')}
             </p>
             {/* The actions wrap as one group, so a narrow panel puts them on their
                 own row under the status line instead of splitting them. */}
@@ -299,7 +302,7 @@ export function AskSessionAnnouncementDialog({
                 className={OUTBOUND_ACTION_CLASS}
               >
                 <XMark className="size-3.5" />
-                Watch on X
+                {t('Watch on X')}
               </a>
               <a
                 href={ASK_SESSION_DOCS_URL}
@@ -308,7 +311,7 @@ export function AskSessionAnnouncementDialog({
                 data-ask-session-learn-more
                 className={OUTBOUND_ACTION_CLASS}
               >
-                Learn more
+                {t('Learn more')}
                 <ExternalLink className="size-3.5" aria-hidden="true" />
               </a>
               <button
@@ -317,7 +320,7 @@ export function AskSessionAnnouncementDialog({
                 onClick={onDismiss}
                 className="min-h-9 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground outline-none transition-opacity motion-reduce:transition-none hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card"
               >
-                Got it
+                {t('Got it')}
               </button>
             </div>
           </div>

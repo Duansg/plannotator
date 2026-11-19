@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import React, { useLayoutEffect, useRef } from "react";
 import { Menu } from "@base-ui/react/menu";
 import { Check, ChevronsDownUp, ChevronsUpDown, Copy, Ellipsis, Eye, EyeOff, FoldVertical, TextSearch, X } from "lucide-react";
@@ -175,6 +176,7 @@ function ListOptionsMenu({
   areAllFoldersExpanded = false,
   collapseDisabled = false,
 }: PanelControlsProps) {
+  const t = useTranslate();
   const perFile = !!onToggleShowViewedControls && !!onToggleShowStageControls;
   const settings = !!onToggleAutoViewed || !!onToggleGroupByKind || !!onSelectGroupBy;
   if (!onCopyRawDiff && !settings && !perFile && !onToggleAllFolders) return null;
@@ -185,8 +187,8 @@ function ListOptionsMenu({
   );
   return (
     <Menu.Root>
-      <Tooltip content="List options" side="bottom">
-        <Menu.Trigger className={`${TOOL} data-[popup-open]:bg-[var(--sidebar-fill-strong)] data-[popup-open]:text-foreground`} aria-label="List options">
+      <Tooltip content={t('List options')} side="bottom">
+        <Menu.Trigger className={`${TOOL} data-[popup-open]:bg-[var(--sidebar-fill-strong)] data-[popup-open]:text-foreground`} aria-label={t('List options')}>
           <Ellipsis className="w-4 h-4" aria-hidden="true" />
         </Menu.Trigger>
       </Tooltip>
@@ -203,7 +205,7 @@ function ListOptionsMenu({
                 ) : (
                   <ChevronsUpDown className="w-3.5 h-3.5 text-muted-foreground" aria-hidden="true" />
                 )}
-                {areAllFoldersExpanded ? "Collapse all folders" : "Expand all folders"}
+                {areAllFoldersExpanded ? t('Collapse all folders') : t('Expand all folders')}
               </Menu.Item>
             )}
             {onToggleAllFolders && onCopyRawDiff && <Menu.Separator className="my-1 h-px bg-border/70" />}
@@ -228,14 +230,14 @@ function ListOptionsMenu({
                 closeOnClick={false}
                 data-review-auto-viewed-toggle=""
               >
-                Auto-mark viewed
+                {t('Auto-mark viewed')}
                 {check(autoViewed)}
               </Menu.CheckboxItem>
             )}
             {onSelectGroupBy && groupBy && (
               <Menu.Group>
                 <Menu.Separator className="my-1 h-px bg-border/70" />
-                <Menu.GroupLabel className="px-2 pt-1 pb-0.5 text-[12px] font-medium text-muted-foreground">Group files</Menu.GroupLabel>
+                <Menu.GroupLabel className="px-2 pt-1 pb-0.5 text-[12px] font-medium text-muted-foreground">{t('Group files')}</Menu.GroupLabel>
                 <Menu.RadioGroup value={groupBy} onValueChange={(value) => onSelectGroupBy(value as "none" | "kind" | "status")}>
                   {([
                     ["none", "No groups"],
@@ -258,14 +260,14 @@ function ListOptionsMenu({
                 closeOnClick={false}
                 data-review-group-by-kind-toggle=""
               >
-                Group by kind
+                {t('Group by kind')}
                 {check(groupByKind)}
               </Menu.CheckboxItem>
             )}
             {perFile && (
               <Menu.Group>
                 {(onCopyRawDiff || settings) && <Menu.Separator className="my-1 h-px bg-border/70" />}
-                <Menu.GroupLabel className="px-2 pt-1 pb-0.5 text-xs font-medium text-muted-foreground">On each file</Menu.GroupLabel>
+                <Menu.GroupLabel className="px-2 pt-1 pb-0.5 text-xs font-medium text-muted-foreground">{t('On each file')}</Menu.GroupLabel>
                 <Menu.CheckboxItem
                   className={MENU_ITEM}
                   checked={showViewedControls}
@@ -278,7 +280,7 @@ function ListOptionsMenu({
                   closeOnClick={false}
                   data-review-viewed-controls-toggle=""
                 >
-                  Viewed button
+                  {t('Viewed button')}
                   {check(showViewedControls)}
                 </Menu.CheckboxItem>
                 <Menu.CheckboxItem
@@ -288,7 +290,7 @@ function ListOptionsMenu({
                   closeOnClick={false}
                   data-review-stage-controls-toggle=""
                 >
-                  Git add button
+                  {t('Git add button')}
                   {check(showStageControls)}
                 </Menu.CheckboxItem>
               </Menu.Group>
@@ -301,6 +303,7 @@ function ListOptionsMenu({
 }
 
 export function PanelControlsRow(props: PanelControlsProps) {
+  const t = useTranslate();
   const {
     isSearchVisible = false,
     onOpenSearch,
@@ -321,13 +324,13 @@ export function PanelControlsRow(props: PanelControlsProps) {
         className="flex flex-wrap items-center min-h-7 gap-y-1"
         data-panel-controls-row=""
       >
-        {scope ?? <span className="px-2 text-[13px] font-medium text-muted-foreground">Files</span>}
+        {scope ?? <span className="px-2 text-[13px] font-medium text-muted-foreground">{t('Files')}</span>}
         <div className="ml-auto flex flex-shrink-0 items-center" data-panel-tools="">
           {onToggleFilesCollapsed && (
             <button
               type="button"
               onClick={onToggleFilesCollapsed}
-              aria-label={filesCollapsed ? "Expand all files" : "Collapse all files"}
+              aria-label={filesCollapsed ? t('Expand all files') : t('Collapse all files')}
               data-tree-collapse-all-files={filesCollapsed ? "collapsed" : "open"}
               className={TOOL}
             >
@@ -335,14 +338,14 @@ export function PanelControlsRow(props: PanelControlsProps) {
             </button>
           )}
           {showViewedControls && onToggleHideViewed && (
-            <ToolButton label="Hide viewed files" onClick={onToggleHideViewed} pressed={hideViewedFiles}>
+            <ToolButton label={t('Hide viewed files')} onClick={onToggleHideViewed} pressed={hideViewedFiles}>
               {hideViewedFiles ? <EyeOff className="w-3.5 h-3.5" aria-hidden="true" /> : <Eye className="w-3.5 h-3.5" aria-hidden="true" />}
             </ToolButton>
           )}
           {onOpenSearch && (
             <ToolButton
-              label="Search in diff"
-              tooltip={searchToggles && isSearchVisible ? "Close search in diff" : "Search in diff (Cmd/Ctrl+F)"}
+              label={t('Search in diff')}
+              tooltip={searchToggles && isSearchVisible ? t('Close search in diff') : t('Search in diff (Cmd/Ctrl+F)')}
               onClick={searchToggles && isSearchVisible ? onCloseSearch! : onOpenSearch}
               pressed={searchToggles ? isSearchVisible : undefined}
             >
@@ -352,7 +355,7 @@ export function PanelControlsRow(props: PanelControlsProps) {
           <ListOptionsMenu {...props} />
         </div>
         <span className="sr-only" aria-live="polite">
-          {copyRawDiffStatus === "success" ? "All diffs copied" : copyRawDiffStatus === "error" ? "Copy failed" : ""}
+          {copyRawDiffStatus === "success" ? t('All diffs copied') : copyRawDiffStatus === "error" ? t('Copy failed') : ""}
         </span>
       </div>
       {notice}
@@ -379,6 +382,7 @@ export function PanelSearchField({
   onClear?: () => void;
   onClose?: () => void;
 }) {
+  const t = useTranslate();
   const hasQuery = !!query.trim();
   const actionLabel = hasQuery ? "Clear search" : "Close search";
 
@@ -409,8 +413,8 @@ export function PanelSearchField({
           value={query}
           onChange={(event) => onChange(event.target.value)}
           onKeyDown={onKeyDown}
-          placeholder="Search diff..."
-          aria-label="Search diff"
+          placeholder={t('Search diff...')}
+          aria-label={t('Search diff')}
           autoComplete="off"
           spellCheck={false}
           className="w-full rounded bg-muted py-1.5 pl-7 pr-7 text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"

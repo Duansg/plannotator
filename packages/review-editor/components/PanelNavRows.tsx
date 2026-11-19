@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import React from 'react';
 import { Diff, GitFork } from 'lucide-react';
 import { useDiffCountColors } from '../hooks/useDiffCountColors';
@@ -44,13 +45,14 @@ export function SidebarActionRow({
 }
 
 export function SemanticDiffRow({ active, onClick, count }: { active: boolean; onClick: () => void; count?: number }) {
+  const t = useTranslate();
   return (
-    <SidebarActionRow active={active} onClick={onClick} title="Moved, renamed and edited code, file by file">
+    <SidebarActionRow active={active} onClick={onClick} title={t('Moved, renamed and edited code, file by file')}>
       <Diff className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" data-semantic-diff-icon="" />
-      <span>Semantic diff</span>
+      <span>{t('Semantic diff')}</span>
       {count !== undefined && (
         <span className="ml-auto rounded bg-muted px-1.5 py-0.5 font-mono text-xs tabular-nums text-muted-foreground" data-semantic-diff-count="" data-nav-count="">
-          {count}<span className="sr-only"> semantic changes</span>
+          {count}<span className="sr-only">{' '}{t('semantic changes')}</span>
         </span>
       )}
     </SidebarActionRow>
@@ -70,22 +72,23 @@ export function CallFlowRow({
   loading?: boolean;
   error?: boolean;
 }) {
+  const t = useTranslate();
   return (
     <SidebarActionRow
       active={active}
       onClick={onClick}
-      title={error ? 'Call flow setup needs attention' : 'Trace how changed calls affect entry paths'}
+      title={error ? t('Call flow setup needs attention') : t('Trace how changed calls affect entry paths')}
     >
       <GitFork className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
-      <span>Call flow</span>
+      <span>{t('Call flow')}</span>
       <span
         className={`ml-auto rounded bg-muted px-1.5 py-0.5 font-mono text-xs tabular-nums ${error ? 'text-warning' : 'text-muted-foreground'}`}
         data-nav-count=""
       >
         {error ? (
-          <><span aria-hidden="true">!</span><span className="sr-only">Call flow setup needs attention</span></>
+          <><span aria-hidden="true">!</span><span className="sr-only">{t('Call flow setup needs attention')}</span></>
         ) : loading ? (
-          <><span aria-hidden="true">…</span><span className="sr-only">Call flow setup in progress</span></>
+          <><span aria-hidden="true">…</span><span className="sr-only">{t('Call flow setup in progress')}</span></>
         ) : count ?? '—'}
       </span>
     </SidebarActionRow>
@@ -109,13 +112,14 @@ export function AllChangesRow({
   additions: number;
   deletions: number;
 }) {
+  const t = useTranslate();
   const colors = useDiffCountColors();
   return (
-    <SidebarActionRow active={active} onClick={onClick} title="Every change of this review in one view">
+    <SidebarActionRow active={active} onClick={onClick} title={t('Every change of this review in one view')}>
       <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m-13.5 0A2.25 2.25 0 003 12v3a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 15v-3a2.25 2.25 0 00-2.25-2.25m-13.5 0h13.5" />
       </svg>
-      <span className="min-w-0 truncate">All changes</span>
+      <span className="min-w-0 truncate">{t('All changes')}</span>
       <span className="ml-auto flex font-normal" data-all-changes-counts>
         <CountColumns
           additions={additions}

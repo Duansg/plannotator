@@ -2,6 +2,7 @@
  * Reusable confirmation dialog component
  */
 
+import { useTranslate } from './ReviewLanguage';
 import React, { useEffect, useId, useRef } from 'react';
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
 
@@ -26,12 +27,13 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   title,
   message,
   subMessage,
-  confirmText = 'Got it',
-  cancelText = 'Cancel',
+  confirmText,
+  cancelText,
   variant = 'info',
   showCancel = false,
   wide = false,
 }) => {
+  const t = useTranslate();
   const descriptionId = useId();
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
@@ -117,7 +119,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               onClick={onClose}
               className="px-4 py-2 rounded-md text-sm font-medium bg-muted text-muted-foreground [@media(hover:hover)_and_(pointer:fine)]:hover:bg-muted/80 transition-opacity"
             >
-              {cancelText}
+              {cancelText ?? t('Cancel')}
             </button>
           )}
           <button
@@ -133,7 +135,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             }}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-opacity ${buttonColors[variant]}`}
           >
-            {confirmText}
+            {confirmText ?? t('Got it')}
           </button>
         </div>
       </DialogContent>

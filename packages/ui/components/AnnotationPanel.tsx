@@ -1,3 +1,4 @@
+import { useTranslate } from './ReviewLanguage';
 import React, { createContext, useContext, useMemo, useState, useRef, useEffect, useId } from 'react';
 import { AnnotationType, type Annotation, type Block, type CodeAnnotation, type EditorAnnotation } from '../types';
 import type { MentionSource } from '../utils/mentions';
@@ -41,11 +42,11 @@ const TYPE_COLOR: Record<AnnotationType, string> = {
   [AnnotationType.GLOBAL_COMMENT]: 'text-purple-500',
 };
 
-const TYPE_LABEL: Record<AnnotationType, string> = {
+const TYPE_LABEL = {
   [AnnotationType.DELETION]: 'Deletion',
   [AnnotationType.COMMENT]: 'Comment',
   [AnnotationType.GLOBAL_COMMENT]: 'Global',
-};
+} as const;
 
 const PencilIcon = () => (
   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -268,7 +269,7 @@ interface PanelProps {
 }
 
 export const AnnotationPanel: React.FC<PanelProps> = ({
-  emptyHint = 'Select text to annotate',
+  emptyHint,
   isOpen,
   annotations,
   blocks,
@@ -306,7 +307,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
   questionRows,
   onSelectQuestion,
   compareAnnotations,
-  title = 'Annotations',
+  title,
   titleNote,
   cardParts,
   renderCardBody,
@@ -316,6 +317,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
   hideEmptyMessage = false,
   reopenEdit,
 }) => {
+  const t = useTranslate();
   // `#Heading` links in comment text; nothing is parsed unless the host can navigate.
   const sectionRefs = useMemo(
     () => (onNavigateAnchor ? buildSectionRefIndex(blocks) : undefined),
@@ -384,7 +386,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
     <div
       data-annotation-scope-toggle="true"
       role="group"
-      aria-label="Annotation scope"
+      aria-label={t('Annotation scope')}
       className="flex items-center gap-0.5 rounded-md bg-surface-1/60 p-0.5"
     >
       {(['current', 'all'] as const).map((value) => (
@@ -402,7 +404,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
               : 'text-muted-foreground hover:text-foreground',
           )}
         >
-          {value === 'current' ? 'This file' : 'All files'}
+          {value === 'current' ? t('This file') : t('All files')}
         </button>
       ))}
     </div>
@@ -434,7 +436,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
           <div className="flex h-10 items-center justify-between px-3">
             <div className="flex items-center gap-2">
               <h2 className="text-xs font-medium text-foreground">
-                {title}
+                {title ?? t('Annotations')}
               </h2>
               {headerCount > 0 && (
                 <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary/10 px-1 font-mono text-[10px] font-medium tabular-nums text-primary">
@@ -444,11 +446,11 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
             </div>
             {titleNote && <span data-annotation-panel-note="" className="ml-auto mr-1 text-[11px] text-muted-foreground">{titleNote}</span>}
             {mobilePanel && onClose && (
-              <HostTitle title="Close panel">
+              <HostTitle title={t('Close panel')}>
                 <button
                   onClick={onClose}
                   className="relative rounded-md p-1.5 text-muted-foreground transition-colors before:absolute before:-inset-1.5 before:content-[''] hover:text-foreground md:hidden"
-                  aria-label="Close panel"
+                  aria-label={t('Close panel')}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -468,7 +470,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
             </div>
           ) : (
             otherFileAnnotations && otherFileAnnotations.count > 0 && (
-              <HostTitle title="Show annotated files in sidebar">
+              <HostTitle title={t('Show annotated files in sidebar')}>
                 <button
                   onClick={onOtherFileAnnotationsClick}
                   className="px-3 pb-2 text-[10px] text-primary/70 hover:text-primary transition-colors cursor-pointer"
@@ -491,7 +493,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
       )}
 
       {embedded && !scopeEnabled && otherFileAnnotations && otherFileAnnotations.count > 0 && (
-        <HostTitle title="Show annotated files in navigator">
+        <HostTitle title={t('Show annotated files in navigator')}>
           <button
             type="button"
             data-pn-touch-target="true"
@@ -517,7 +519,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
               onRemoveOrphan={readOnly ? undefined : (row) => { if (row.annotationId) onDelete(row.annotationId); }}
             />
             <div className="mx-0.5 mt-1 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">
-              <span className="flex-1">Comments</span>
+              <span className="flex-1">{t('Comments')}</span>
               <span className="tabular-nums">{showGroups ? groupedTotal : timelineCount}</span>
             </div>
           </>
@@ -558,7 +560,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
                       </span>
                     </HostTitle>
                     {group.isCurrent && (
-                      <span className="flex-shrink-0 text-[9px] text-muted-foreground/50">open</span>
+                      <span className="flex-shrink-0 text-[9px] text-muted-foreground/50">{t('open')}</span>
                     )}
                     <span className="flex h-[16px] min-w-[16px] flex-shrink-0 items-center justify-center rounded-full bg-primary/10 px-1 font-mono text-[9px] font-medium tabular-nums text-primary">
                       {group.annotations.length}
@@ -610,7 +612,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
               <>
                 <div className="flex items-center gap-2 pt-2 pb-1">
                   <div className="flex-1 border-t border-border/30" />
-                  <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">Code</span>
+                  <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">{t('Code')}</span>
                   <div className="flex-1 border-t border-border/30" />
                 </div>
                 {sortedCodeAnnotations.map((annotation) => (
@@ -632,7 +634,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
               <>
                 <div className="flex items-center gap-2 pt-2 pb-1">
                   <div className="flex-1 border-t border-border/30" />
-                  <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">Editor</span>
+                  <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">{t('Editor')}</span>
                   <div className="flex-1 border-t border-border/30" />
                 </div>
                 {editorAnnotations.map(ann => (
@@ -645,7 +647,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
               </>
             )}
             {otherGroups.length > 0 && onOtherFileAnnotationsClick && (
-              <HostTitle title="Show annotated files in the navigator">
+              <HostTitle title={t('Show annotated files in the navigator')}>
                 <button
                   type="button"
                   data-pn-touch-target="true"
@@ -653,14 +655,14 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
                   onClick={onOtherFileAnnotationsClick}
                   className="mt-1 cursor-pointer self-start px-1.5 text-[10px] text-muted-foreground/60 transition-colors hover:text-primary"
                 >
-                  Show in files
+                  {t('Show in files')}
                 </button>
               </HostTitle>
             )}
           </>
         ) : timelineCount === 0 && showQuestions ? (
           <p className="px-1 py-2.5 text-[12.5px] text-muted-foreground">
-            Select text in the document to comment. Question and option text is selectable too.
+            {t('Select text in the document to comment. Question and option text is selectable too.')}
           </p>
         ) : timelineCount === 0 ? (
           (!directEdits || directEdits.length === 0) && (!hideEmptyMessage || (scopeEnabled && otherGroupCount > 0)) && (
@@ -668,10 +670,10 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
               {!hideEmptyMessage && (
                 <>
                   <p className="text-xs text-muted-foreground/60">
-                    No annotations yet
+                    {t('No annotations yet')}
                   </p>
                   <p className="mt-1 text-[11px] text-muted-foreground/40">
-                    {emptyHint}
+                    {emptyHint ?? t('Select text to annotate')}
                   </p>
                 </>
               )}
@@ -683,7 +685,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
                   onClick={() => onAnnotationScopeChange!('all')}
                   className={`${hideEmptyMessage ? '' : 'mt-3 '}cursor-pointer rounded-md px-2 py-1 text-[11px] text-primary/80 transition-colors hover:bg-surface-1 hover:text-primary`}
                 >
-                  View all {otherGroupCount} in {otherGroups.length} other file{otherGroups.length === 1 ? '' : 's'}
+                  {t('View all')} {otherGroupCount} in {otherGroups.length} other file{otherGroups.length === 1 ? '' : 's'}
                 </button>
               )}
             </div>
@@ -758,7 +760,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
                 {timelineEntries.length > 0 && (
                   <div className="flex items-center gap-2 pt-2 pb-1">
                     <div className="flex-1 border-t border-border/30" />
-                    <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">Editor</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">{t('Editor')}</span>
                     <div className="flex-1 border-t border-border/30" />
                   </div>
                 )}
@@ -798,14 +800,14 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
-                  Copied
+                  {t('Copied')}
                 </>
               ) : (
                 <>
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
-                  Copy
+                  {t('Copy')}
                 </>
               )}
             </button>
@@ -818,7 +820,7 @@ export const AnnotationPanel: React.FC<PanelProps> = ({
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
               </svg>
-              Share
+              {t('Share')}
             </button>
           )}
         </div>
@@ -898,6 +900,7 @@ const DirectEditsCard: React.FC<{
   description?: string;
   onDiscard?: () => void;
 }> = ({ title = 'Edits', label, added, removed, diffText, description, onDiscard }) => {
+  const t = useTranslate();
   const [expanded, setExpanded] = useState(false);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
 
@@ -938,7 +941,7 @@ const DirectEditsCard: React.FC<{
             className="cursor-pointer rounded px-1.5 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-surface-1 hover:text-foreground"
             aria-expanded={expanded}
           >
-            {expanded ? 'Hide diff' : 'Diff'}
+            {expanded ? t('Hide diff') : t('Diff')}
           </button>
           {onDiscard && (
             <button
@@ -958,13 +961,13 @@ const DirectEditsCard: React.FC<{
                   : 'text-muted-foreground hover:bg-surface-1 hover:text-destructive',
               )}
             >
-              {confirmDiscard ? 'Confirm?' : 'Discard'}
+              {confirmDiscard ? t('Confirm?') : t('Discard')}
             </button>
           )}
         </div>
       </div>
       <p className="mt-1 text-[10px] leading-snug text-muted-foreground/60">
-        {description ?? 'Your text changes — sent with the feedback as a diff.'}
+        {description ?? t('Your text changes — sent with the feedback as a diff.')}
       </p>
       {expanded && (
         <pre className="mt-2 max-h-56 overflow-auto rounded-md bg-muted/40 p-2 font-mono text-[10px] leading-relaxed">
@@ -1053,6 +1056,7 @@ const AnnotationEditComposer: React.FC<{
   /** Words put back (`reopenEdit`): the caret after them instead of selecting them all. */
   caretAtEnd?: boolean;
 }> = ({ value, onChange, onSave, onCancel, mentionSource, caretAtEnd = false }) => {
+  const t = useTranslate();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const mention = useMentionAutocomplete({ text: value, setText: onChange, textareaRef, source: mentionSource });
   const listboxId = `annotation-card-mentions-${useId().replace(/:/g, '')}`;
@@ -1092,8 +1096,8 @@ const AnnotationEditComposer: React.FC<{
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => { onChange(e.target.value); mention.onSelect(); }}
         onSelect={mention.onSelect}
         onKeyDown={handleKeyDown}
-        placeholder="Add your comment..."
-        aria-label="Annotation comment"
+        placeholder={t('Add your comment...')}
+        aria-label={t('Annotation comment')}
         aria-autocomplete={mentionSource ? 'list' : undefined}
         aria-haspopup={mentionSource ? 'listbox' : undefined}
         aria-controls={menuOpen ? listboxId : undefined}
@@ -1103,8 +1107,8 @@ const AnnotationEditComposer: React.FC<{
         style={{ fieldSizing: 'content', minHeight: 44 } as React.CSSProperties}
       />
       <div className="mt-1.5 flex justify-end gap-1.5">
-        <Button variant="ghost" size="xxs" onClick={onCancel}>Cancel</Button>
-        <Button size="xxs" disabled={!value.trim()} onClick={() => onSave(mention.mentionIds)}>Save</Button>
+        <Button variant="ghost" size="xxs" onClick={onCancel}>{t('Cancel')}</Button>
+        <Button size="xxs" disabled={!value.trim()} onClick={() => onSave(mention.mentionIds)}>{t('Save')}</Button>
       </div>
       <MentionAutocompleteMenu id={listboxId} menu={mention.menu} onSelect={mention.select} />
     </div>
@@ -1135,6 +1139,7 @@ const AnnotationCard: React.FC<{
   /** An edit put back for this card (`PanelProps.reopenEdit`). */
   reopenEdit?: { id: string; text: string } | null;
 }> = ({ annotation, isSelected, isMe, onSelect, onDelete, onEdit, readOnly = false, footer, header, mentionSource, unanchored = false, parts, body, sectionRefs, onNavigateAnchor, reopenEdit }) => {
+  const t = useTranslate();
   // `text: false`: the stored text is the host's stand-in, never the person's words; the edit box starts empty.
   const shownText = parts?.text === false ? '' : annotation.text || '';
   const [isEditing, setIsEditing] = useState(false);
@@ -1222,11 +1227,11 @@ const AnnotationCard: React.FC<{
     >
       {/* Header: type word + author · time + actions */}
       <div className="mb-1.5 flex items-center gap-1.5">
-        <span className={cn('text-[11px] font-medium', typeColor)}>{typeLabel}</span>
+        <span className={cn('text-[11px] font-medium', typeColor)}>{t(typeLabel)}</span>
         {region && regionNumber !== undefined && <RegionNumber n={regionNumber} selected={isSelected} />}
         {region && (
           <span data-annotation-region="true" className="text-[9px] px-1.5 py-0.5 rounded font-medium bg-muted text-muted-foreground">
-            Region
+            {t('Region')}
           </span>
         )}
         {annotation.diffContext && (
@@ -1242,9 +1247,9 @@ const AnnotationCard: React.FC<{
           </HostTitle>
         )}
         {unanchored && (
-          <HostTitle title="This comment no longer matches a location in the document">
+          <HostTitle title={t('This comment no longer matches a location in the document')}>
             <span data-annotation-unanchored="true" className="text-[9px] px-1.5 py-0.5 rounded font-medium bg-muted text-muted-foreground">
-              Unanchored
+              {t('Unanchored')}
             </span>
           </HostTitle>
         )}
@@ -1265,7 +1270,7 @@ const AnnotationCard: React.FC<{
         {!readOnly && (
           <div className="ml-auto flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100">
             {onEdit && annotation.type !== AnnotationType.DELETION && !isEditing && (
-              <HostTitle title="Edit annotation" name>
+              <HostTitle title={t('Edit annotation')} name>
                 <button
                   type="button"
                   onClick={handleStartEdit}
@@ -1275,7 +1280,7 @@ const AnnotationCard: React.FC<{
                 </button>
               </HostTitle>
             )}
-            <HostTitle title="Delete annotation" name>
+            <HostTitle title={t('Delete annotation')} name>
               <button
                 type="button"
                 onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); onDelete(); }}
@@ -1379,6 +1384,7 @@ const CodeAnnotationCard: React.FC<{
   /** An edit put back for this card (`PanelProps.reopenEdit`). */
   reopenEdit?: { id: string; text: string } | null;
 }> = ({ annotation, note, isSelected, isMe, onSelect, onDelete, onEdit, readOnly = false, reopenEdit }) => {
+  const t = useTranslate();
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(annotation.text || '');
   const enterSavesComment = useConfigValue('enterSavesComment');
@@ -1447,13 +1453,13 @@ const CodeAnnotationCard: React.FC<{
       {/* Header: type word + author · time + actions */}
       <div className="mb-1.5 flex items-center gap-1.5">
         {isGlobal
-          ? <span className={cn('text-[11px] font-medium', TYPE_COLOR[AnnotationType.GLOBAL_COMMENT])}>{TYPE_LABEL[AnnotationType.GLOBAL_COMMENT]}</span>
-          : <span className="text-[11px] font-medium text-primary">Code</span>}
+          ? <span className={cn('text-[11px] font-medium', TYPE_COLOR[AnnotationType.GLOBAL_COMMENT])}>{t(TYPE_LABEL[AnnotationType.GLOBAL_COMMENT])}</span>
+          : <span className="text-[11px] font-medium text-primary">{t('Code')}</span>}
         <CardByline author={annotation.author} isMe={isMe} timestamp={annotation.createdAt} />
         {!readOnly && (
           <div className="ml-auto flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100">
             {onEdit && !isEditing && (
-              <HostTitle title="Edit annotation" name>
+              <HostTitle title={t('Edit annotation')} name>
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
@@ -1463,7 +1469,7 @@ const CodeAnnotationCard: React.FC<{
                 </button>
               </HostTitle>
             )}
-            <HostTitle title="Delete annotation" name>
+            <HostTitle title={t('Delete annotation')} name>
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); onDelete(); }}
@@ -1508,14 +1514,14 @@ const CodeAnnotationCard: React.FC<{
                 handleCancelEdit();
               }
             }}
-            placeholder="Add your comment..."
-            aria-label="Annotation comment"
+            placeholder={t('Add your comment...')}
+            aria-label={t('Annotation comment')}
             className="w-full resize-none rounded-lg border border-border/50 bg-card px-2.5 py-2 text-base leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary/40 focus:ring-1 focus:ring-primary/20"
             style={{ fieldSizing: 'content', minHeight: 44 } as React.CSSProperties}
           />
           <div className="mt-1.5 flex justify-end gap-1.5">
-            <Button variant="ghost" size="xxs" onClick={handleCancelEdit}>Cancel</Button>
-            <Button size="xxs" disabled={!editText.trim()} onClick={handleSaveEdit}>Save</Button>
+            <Button variant="ghost" size="xxs" onClick={handleCancelEdit}>{t('Cancel')}</Button>
+            <Button size="xxs" disabled={!editText.trim()} onClick={handleSaveEdit}>{t('Save')}</Button>
           </div>
         </div>
       ) : (

@@ -1,3 +1,4 @@
+import { useTranslate } from './ReviewLanguage';
 import React, { useState, useEffect } from 'react';
 import type { EditorMode, InputMethod } from '../types';
 import { TaterPullupSlot } from './TaterSpriteSlots';
@@ -65,6 +66,7 @@ export const AnnotationToolstrip: React.FC<AnnotationToolstripProps> = ({
   hideRedline = false,
   hideActionModes = false,
 }) => {
+  const t = useTranslate();
   const [showHelp, setShowHelp] = useState(false);
   const [helpTab, setHelpTab] = useState<'selection' | 'plannotator'>('selection');
   const [mounted, setMounted] = useState(false);
@@ -83,7 +85,7 @@ export const AnnotationToolstrip: React.FC<AnnotationToolstripProps> = ({
           <ToolstripButton
             active={inputMethod === 'drag'}
             onClick={() => onInputMethodChange('drag')}
-            label="Select"
+            label={t('Select')}
             color="primary"
             mounted={mounted}
             compact={compact}
@@ -101,7 +103,7 @@ export const AnnotationToolstrip: React.FC<AnnotationToolstripProps> = ({
           <ToolstripButton
             active={inputMethod === 'pinpoint'}
             onClick={() => onInputMethodChange('pinpoint')}
-            label="Pinpoint"
+            label={t('Pinpoint')}
             color="primary"
             mounted={mounted}
             compact={compact}
@@ -126,7 +128,7 @@ export const AnnotationToolstrip: React.FC<AnnotationToolstripProps> = ({
           <ToolstripButton
             active={mode === 'selection'}
             onClick={() => onModeChange('selection')}
-            label="Markup"
+            label={t('Markup')}
             color="secondary"
             mounted={mounted}
             compact={compact}
@@ -140,7 +142,7 @@ export const AnnotationToolstrip: React.FC<AnnotationToolstripProps> = ({
           <ToolstripButton
             active={mode === 'comment'}
             onClick={() => onModeChange('comment')}
-            label="Comment"
+            label={t('Comment')}
             color="accent"
             mounted={mounted}
             compact={compact}
@@ -155,7 +157,7 @@ export const AnnotationToolstrip: React.FC<AnnotationToolstripProps> = ({
           <ToolstripButton
             active={mode === 'redline'}
             onClick={() => onModeChange('redline')}
-            label="Redline"
+            label={t('Redline')}
             color="destructive"
             mounted={mounted}
             compact={compact}
@@ -171,7 +173,7 @@ export const AnnotationToolstrip: React.FC<AnnotationToolstripProps> = ({
             <ToolstripButton
               active={mode === 'quickLabel'}
               onClick={() => onModeChange('quickLabel')}
-              label="Label"
+              label={t('Label')}
               color="warning"
               mounted={mounted}
               compact={compact}
@@ -192,7 +194,7 @@ export const AnnotationToolstrip: React.FC<AnnotationToolstripProps> = ({
             onClick={() => setShowHelp(true)}
             className="ml-2 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors hidden sm:block"
           >
-            how does this work?
+            {t('how does this work?')}
           </button>
         )}
       </div>
@@ -218,7 +220,7 @@ export const AnnotationToolstrip: React.FC<AnnotationToolstripProps> = ({
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  Selection Modes
+                  {t('Selection Modes')}
                 </button>
                 <button
                   onClick={() => setHelpTab('plannotator')}
@@ -228,7 +230,7 @@ export const AnnotationToolstrip: React.FC<AnnotationToolstripProps> = ({
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  How Plannotator Works
+                  {t('How Plannotator Works')}
                 </button>
               </div>
               <button
@@ -249,7 +251,7 @@ export const AnnotationToolstrip: React.FC<AnnotationToolstripProps> = ({
                   ? 'https://www.youtube-nocookie.com/embed/ZNt9jtfx9TY?autoplay=1'
                   : 'https://www.youtube-nocookie.com/embed/a_AT7cEN_9I?autoplay=1'
                 }
-                title={helpTab === 'selection' ? 'How Selection Modes Work' : 'How Plannotator Works'}
+                title={helpTab === 'selection' ? t('How Selection Modes Work') : t('How Plannotator Works')}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen

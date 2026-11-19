@@ -1,3 +1,4 @@
+import { useTranslate } from '../ReviewLanguage';
 /**
  * FileBrowser — markdown/text file tree for the sidebar
  *
@@ -251,6 +252,7 @@ const TreeNode: React.FC<{
   forceExpandFolders?: boolean;
   selectionPending?: boolean;
 }> = ({ node, depth, dirPath, expandedFolders, onToggleFolder, onSelectFile, activeFile, annotationCounts, highlightedFiles, editStatuses, workspaceStatus, forceExpandFolders = false, selectionPending = false }) => {
+  const t = useTranslate();
   const folderKey = `${dirPath}:${node.path}`;
   const absolutePath = `${dirPath}/${node.path}`;
   const isExpanded = forceExpandFolders || expandedFolders.has(folderKey);
@@ -368,7 +370,7 @@ const TreeNode: React.FC<{
       </HostTitle>
       <div className="ml-auto flex flex-shrink-0 items-center gap-1.5 text-[10px]">
         {isActive && selectionPending && (
-          <span className="text-primary">Opening…</span>
+          <span className="text-primary">{t('Opening…')}</span>
         )}
         {editMarker && (
           <span
@@ -408,12 +410,13 @@ const DirSection: React.FC<{
   forceExpandFolders?: boolean;
   selectionPending?: boolean;
 }> = ({ dir, expandedFolders, onToggleFolder, onSelectFile, activeFile, onRetry, annotationCounts, highlightedFiles, editStatuses, forceExpandFolders = false, selectionPending = false }) => {
+  const t = useTranslate();
   const workspaceStatus = React.useMemo(() => normalizeWorkspaceStatus(dir.workspaceStatus), [dir.workspaceStatus]);
 
   if (dir.isLoading) {
     return (
       <div className="p-3 text-[11px] text-muted-foreground">
-        Loading...
+        {t('Loading...')}
       </div>
     );
   }
@@ -426,7 +429,7 @@ const DirSection: React.FC<{
           onClick={onRetry}
           className="text-[10px] text-primary hover:underline"
         >
-          Retry
+          {t('Retry')}
         </button>
       </div>
     );
@@ -435,7 +438,7 @@ const DirSection: React.FC<{
   if (dir.tree.length === 0) {
     return (
       <div className="px-3 py-2 text-[11px] text-muted-foreground">
-        No annotatable files found
+        {t('No annotatable files found')}
       </div>
     );
   }
@@ -488,6 +491,7 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
   editStatuses,
   selectionPending = false,
 }) => {
+  const t = useTranslate();
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
   const [filterQuery, setFilterQuery] = React.useState("");
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -515,7 +519,7 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
   if (dirs.length === 0) {
     return (
       <div className="p-3 text-[11px] text-muted-foreground">
-        No directories configured. Add directories in Settings → Files.
+        {t('No directories configured. Add directories in Settings → Files.')}
       </div>
     );
   }
@@ -566,8 +570,8 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
                 if (filterQuery) setFilterQuery("");
                 else setIsFilterOpen(false);
               }}
-              placeholder="Filter"
-              aria-label="Filter files"
+              placeholder={t('Filter')}
+              aria-label={t('Filter files')}
               autoComplete="off"
               spellCheck={false}
               data-lpignore="true"
@@ -582,8 +586,8 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
                   inputRef.current?.focus();
                 }}
                 className="file-browser-filter-clear flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground/55 hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:bg-muted"
-                aria-label="Clear file filter"
-                title="Clear file filter"
+                aria-label={t('Clear file filter')}
+                title={t('Clear file filter')}
               >
                 <X size={12} aria-hidden="true" />
               </button>
@@ -594,11 +598,11 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
             type="button"
             onClick={() => setIsFilterOpen(true)}
             className="flex h-6 w-full items-center gap-1.5 rounded-sm px-1.5 text-left text-[10px] text-muted-foreground hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:bg-muted/50 focus-visible:text-foreground"
-            aria-label="Filter files"
-            title="Filter files"
+            aria-label={t('Filter files')}
+            title={t('Filter files')}
           >
             <Search size={12} className="shrink-0 text-muted-foreground/55" aria-hidden="true" />
-            <span className="truncate">Filter</span>
+            <span className="truncate">{t('Filter')}</span>
           </button>
         )}
       </div>

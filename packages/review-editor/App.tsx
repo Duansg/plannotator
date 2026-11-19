@@ -14,7 +14,8 @@ import { TooltipProvider } from '@plannotator/ui/components/Tooltip';
 import { ConfirmDialog } from '@plannotator/ui/components/ConfirmDialog';
 import { Settings } from '@plannotator/ui/components/Settings';
 import { ExitButton } from '@plannotator/ui/components/ToolbarButtons';
-import { buildDecisionSpec, type DecisionActionId, type DecisionMenuItem } from '@plannotator/ui/utils/decisionSpec';
+import { ReviewLanguageProvider, useTranslate } from '@plannotator/ui/components/ReviewLanguage';
+import { annotationCountLabel, buildDecisionSpec, type DecisionActionId, type DecisionMenuItem } from '@plannotator/ui/utils/decisionSpec';
 import { installPlainTextPaste } from '@plannotator/ui/utils/pasteInsert';
 import { DecisionControl, DecisionNoteDialog, type DecisionHandler } from '@plannotator/ui/components/DecisionControl';
 import {
@@ -414,9 +415,10 @@ function ReviewNavigatorContainer({
   resizeHandle,
   children,
 }: ReviewNavigatorContainerProps) {
+  const t = useTranslate();
   if (isCompactTouchLayout) {
     return (
-      <CompactReviewOverlay title="Review navigation" context={context}>
+      <CompactReviewOverlay title={t('Review navigation')} context={context}>
         {children}
       </CompactReviewOverlay>
     );
@@ -461,6 +463,7 @@ const reviewToaster = (
 );
 
 const ReviewApp: React.FC = () => {
+  const t = useTranslate();
   useViewportEnvironment();
   // A plain-text paste into our text fields is inserted by the page: Chrome 155-156 on macOS drops
   // dictated (synthetic ⌘V) text otherwise. Remove once Chrome 157 is stable (pasteInsert.ts).
@@ -4914,6 +4917,7 @@ const ReviewApp: React.FC = () => {
       console.error('Failed to send feedback:', err);
       setIsSendingFeedback(false);
       showSendFailureToast({
+        t,
         what: 'feedback',
         error: err,
         onRetry: () => { void retryDecisionRef.current.sendFeedback(); },
@@ -4925,7 +4929,7 @@ const ReviewApp: React.FC = () => {
     } finally {
       sendSettled();
     }
-  }, [feedbackUrl, feedbackMarkdown, allAnnotations, getDraftGeneration, flushReviewProgress]);
+  }, [t, feedbackUrl, feedbackMarkdown, allAnnotations, getDraftGeneration, flushReviewProgress]);
 
   // Exit review session without sending any feedback
   const handleExit = useCallback(async () => {
@@ -4981,6 +4985,7 @@ const ReviewApp: React.FC = () => {
       console.error('Failed to approve:', err);
       setIsApproving(false);
       showSendFailureToast({
+        t,
         what: 'approval',
         error: err,
         onRetry: () => { void retryDecisionRef.current.approve(options); },
@@ -4993,7 +4998,7 @@ const ReviewApp: React.FC = () => {
     } finally {
       sendSettled();
     }
-  }, [feedbackUrl, getDraftGeneration, feedbackMarkdown, allAnnotations, flushReviewProgress]);
+  }, [t, feedbackUrl, getDraftGeneration, feedbackMarkdown, allAnnotations, flushReviewProgress]);
   // The failure toast's Retry and Copy feedback read the page when clicked:
   // Retry runs the latest handler, Copy copies what that handler would send.
   const latestDecision = {
@@ -5158,7 +5163,7 @@ const ReviewApp: React.FC = () => {
     // The server advert (spec §6.4) — false until a capable server says so,
     // so approve-carrying items never render where notes would be discarded.
     approvalNotesSupported,
-  }), [totalAnnotationCount, approvalNotesSupported]);
+  }, t), [t,totalAnnotationCount, approvalNotesSupported]);
 
   const reviewDecisionHandlers = useMemo<Record<DecisionActionId, DecisionHandler>>(() => ({
     'primary': () => runReviewDecisionAction('primary'),
@@ -5397,7 +5402,7 @@ const ReviewApp: React.FC = () => {
     hasFeedback: totalAnnotationCount > 0,
     approvalNotesSupported: false, // ignored by the platform arm
     platform: { label: platformLabel, mrLabel, selfAuthored: isOwnPR, requestChangesSupported, selfRequestChangesBlocked },
-  }), [totalAnnotationCount, platformLabel, mrLabel, isOwnPR, requestChangesSupported, selfRequestChangesBlocked]);
+  }, t), [t,totalAnnotationCount, platformLabel, mrLabel, isOwnPR, requestChangesSupported, selfRequestChangesBlocked]);
 
   const runPlatformDecisionAction = useCallback((id: DecisionActionId) => {
     if (submitted || busyWithPlatformDecision) return;
@@ -5699,7 +5704,7 @@ const ReviewApp: React.FC = () => {
             // self-approval reason as their subtitle.
             {
               id: 'exit',
-              label: 'Exit review',
+              label: t('Exit review'),
               onSelect: () => totalAnnotationCount > 0 ? setShowExitWarning(true) : handleExit(),
               disabled: compactActionBusy,
             },
@@ -5709,7 +5714,7 @@ const ReviewApp: React.FC = () => {
               subtitle: platformDecisionSpec.primary.muted
                 ? platformDecisionSpec.primary.title
                 : totalAnnotationCount > 0
-                  ? `${totalAnnotationCount} annotation${totalAnnotationCount === 1 ? '' : 's'}`
+                  ? annotationCountLabel(totalAnnotationCount, t)
                   : undefined,
               onSelect: () => runPlatformDecisionAction('primary'),
               disabled: compactActionBusy || !!platformDecisionSpec.primary.muted,
@@ -5728,7 +5733,7 @@ const ReviewApp: React.FC = () => {
             // spec §3.2 / E16-review).
             {
               id: 'exit',
-              label: 'Exit review',
+              label: t('Exit review'),
               onSelect: () => totalAnnotationCount > 0 ? setShowExitWarning(true) : handleExit(),
               disabled: compactActionBusy,
             },
@@ -5736,7 +5741,7 @@ const ReviewApp: React.FC = () => {
               id: compactPrimaryIdForReviewDecision(reviewDecisionSpec.primary),
               label: reviewDecisionSpec.primary.mobileLabel ?? reviewDecisionSpec.primary.label,
               subtitle: totalAnnotationCount > 0
-                ? `${totalAnnotationCount} annotation${totalAnnotationCount === 1 ? '' : 's'}`
+                ? annotationCountLabel(totalAnnotationCount, t)
                 : undefined,
               onSelect: submitPrimaryDecision,
               disabled: compactActionBusy,
@@ -5859,7 +5864,7 @@ const ReviewApp: React.FC = () => {
     return (
       <ThemeProvider defaultTheme="dark" manageFavicon>
         <div className="pn-app-viewport flex items-center justify-center bg-background">
-          <div className="text-muted-foreground text-sm">Loading diff...</div>
+          <div className="text-muted-foreground text-sm">{t('Loading diff...')}</div>
         </div>
       </ThemeProvider>
     );
@@ -5900,8 +5905,8 @@ const ReviewApp: React.FC = () => {
                       ? `text-primary${isCompactTouchLayout ? ' bg-muted' : ''}`
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
-                  title={isNavigatorOpen ? 'Close review navigation' : 'Open review navigation'}
-                  aria-label={isNavigatorOpen ? 'Close review navigation' : 'Open review navigation'}
+                  title={isNavigatorOpen ? t('Close review navigation') : t('Open review navigation')}
+                  aria-label={isNavigatorOpen ? t('Close review navigation') : t('Open review navigation')}
                   aria-expanded={isNavigatorOpen}
                 >
                   <FolderTree className="w-3.5 h-3.5" />
@@ -5923,10 +5928,10 @@ const ReviewApp: React.FC = () => {
                   className={`relative flex h-7 shrink-0 items-center gap-1 px-2 rounded-md text-xs font-medium transition-colors ${
                     guideOpen ? 'bg-primary/15 text-primary' : 'bg-muted text-foreground hover:bg-muted/80'
                   }`}
-                  title={guideOpen ? 'Back to the diff workspace' : 'Open guided review'}
+                  title={guideOpen ? t('Back to the diff workspace') : t('Open guided review')}
                   data-guide-button=""
                 >
-                  {guideOpen ? 'Go back' : 'Guide'}
+                  {guideOpen ? t('Go back') : t('Guide')}
                   {guideHintActive && !guideOpen && <span data-guide-hint-dot="" className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-primary" />}
                 </button>
                 <div className="w-px h-5 bg-border mx-1 hidden lg:block" />
@@ -5981,18 +5986,18 @@ const ReviewApp: React.FC = () => {
               }>
                 <span
                   className="text-xs font-mono text-foreground truncate max-w-[220px]"
-                  title={staticPatchSource || 'Static patch review'}
+                  title={staticPatchSource || t('Static patch review')}
                   data-testid="static-patch-label"
                 >
                   {staticPatchLabel}
                 </span>
-                <span className="text-xs text-muted-foreground/60 hidden sm:inline">Patch</span>
+                <span className="text-xs text-muted-foreground/60 hidden sm:inline">{t('Patch')}</span>
               </div>
             ) : (
               <span className={isCompactTouchLayout
                 ? 'min-w-0 text-center text-xs text-muted-foreground/70'
                 : 'text-xs text-muted-foreground/70'
-              }>Review</span>
+              }>{t('Review')}</span>
             )}
             </div>
             {isCompactTouchLayout && !guideVisible && <CompactPrimaryAction action={compactPrimaryAction(compactReviewActions)} />}
@@ -6028,14 +6033,14 @@ const ReviewApp: React.FC = () => {
                                         setShowDestinationMenu(prev => !prev);
                       }}
                       className="flex h-7 items-center gap-1 px-2 rounded-md text-xs font-medium bg-muted hover:bg-muted/80 transition-colors"
-                      title={reviewDestination === 'platform' ? `Posting to ${platformLabel} ${mrLabel}` : 'Sending to agent session'}
+                      title={reviewDestination === 'platform' ? `Posting to ${platformLabel} ${mrLabel}` : t('Sending to agent session')}
                     >
                       {reviewDestination === 'platform' ? (
                         <>
                           <PRPlatformIcon platform={prMetadata?.platform ?? 'github'} className="w-3.5 h-3.5" />
                           <span className="hidden lg:inline">{platformLabel}</span>
                         </>
-                      ) : 'Agent'}
+                      ) : t('Agent')}
                       <svg className="w-3 h-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                       </svg>
@@ -6075,8 +6080,8 @@ const ReviewApp: React.FC = () => {
                                 : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
                             }`}
                           >
-                            <div className="font-medium">Agent</div>
-                            <div className="text-muted-foreground/60">Send to session</div>
+                            <div className="font-medium">{t('Agent')}</div>
+                            <div className="text-muted-foreground/60">{t('Send to session')}</div>
                           </button>
                           {!isCompactTouchLayout && <div className="border-t border-border/50 mt-1 pt-1 px-3 py-1">
                             <span className="text-xs text-muted-foreground/40">
@@ -6112,7 +6117,7 @@ const ReviewApp: React.FC = () => {
                       onClick={() => totalAnnotationCount > 0 ? setShowExitWarning(true) : handleExit()}
                       disabled={busyWithDecision}
                       isLoading={isExiting}
-                      title="Close review without feedback"
+                      title={t('Close review without feedback')}
                     />
                     <DecisionControl
                       spec={reviewDecisionSpec}
@@ -6138,7 +6143,7 @@ const ReviewApp: React.FC = () => {
                       onClick={() => totalAnnotationCount > 0 ? setShowExitWarning(true) : handleExit()}
                       disabled={busyWithPlatformDecision}
                       isLoading={isExiting}
-                      title="Close review without feedback"
+                      title={t('Close review without feedback')}
                     />
                     <DecisionControl
                       spec={platformDecisionSpec}
@@ -6156,21 +6161,21 @@ const ReviewApp: React.FC = () => {
                 data-pn-touch-target-icon={isCompactTouchLayout || undefined}
                 onClick={handleCopyFeedback}
                 className="px-2 py-1 md:px-2.5 rounded-md text-xs font-medium bg-muted hover:bg-muted/80 transition-colors flex items-center gap-1.5"
-                title="Copy feedback for LLM"
+                title={t('Copy feedback for LLM')}
               >
                 {copyFeedback === 'Feedback copied!' ? (
                   <>
                     <svg className="w-3.5 h-3.5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
-                    <span className="hidden md:inline">Copied!</span>
+                    <span className="hidden md:inline">{t('Copied!')}</span>
                   </>
                 ) : (
                   <>
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <span className="hidden md:inline">Copy Feedback</span>
+                    <span className="hidden md:inline">{t('Copy Feedback')}</span>
                   </>
                 )}
               </button>
@@ -6233,9 +6238,9 @@ const ReviewApp: React.FC = () => {
 
         {draftTargetChanged && (
           <div role="status" className="shrink-0 flex items-center justify-between gap-3 border-b border-warning/20 bg-warning/10 px-3 py-2 text-xs text-warning">
-            <span>Draft saving paused because the review target changed. Your comments are still in this tab.</span>
+            <span>{t('Draft saving paused because the review target changed. Your comments are still in this tab.')}</span>
             <button data-pn-touch-target type="button" onClick={handleRefreshStaleDiff} disabled={isLoadingDiff} className="shrink-0 font-medium underline underline-offset-2 disabled:opacity-60">
-              {isLoadingDiff ? 'Refreshing…' : 'Refresh review'}
+              {isLoadingDiff ? t('Refreshing…') : t('Refresh review')}
             </button>
           </div>
         )}
@@ -6432,7 +6437,7 @@ const ReviewApp: React.FC = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Loading commit…
+                  {t('Loading commit…')}
                 </div>
               </div>
             )}
@@ -6441,15 +6446,15 @@ const ReviewApp: React.FC = () => {
               isOpen={!!draftBanner}
               onClose={dismissDraft}
               onConfirm={handleRestoreDraft}
-              title="Draft Recovered"
+              title={t('Draft Recovered')}
               message={draftBanner ? (() => {
                 const parts: string[] = [];
                 if (draftBanner.count > 0) parts.push(`${draftBanner.count} annotation${draftBanner.count !== 1 ? 's' : ''}`);
                 if (draftBanner.viewedCount > 0) parts.push(`${draftBanner.viewedCount} viewed file${draftBanner.viewedCount !== 1 ? 's' : ''}`);
                 return `Found ${parts.join(' and ')} from ${draftBanner.timeAgo}. Would you like to restore them?`;
               })() : ''}
-              confirmText="Restore"
-              cancelText="Dismiss"
+              confirmText={t('Restore')}
+              cancelText={t('Dismiss')}
               showCancel
             />
             {files.length > 0 ? (
@@ -6471,22 +6476,22 @@ const ReviewApp: React.FC = () => {
                   <div>
                     {diffError ? (
                       <>
-                        <h3 className="text-sm font-medium text-destructive">Failed to load diff</h3>
+                        <h3 className="text-sm font-medium text-destructive">{t('Failed to load diff')}</h3>
                         <p className="text-xs text-muted-foreground mt-1 max-w-sm break-words line-clamp-3">{diffError}</p>
                       </>
                     ) : (
                       <>
-                        <h3 className="text-sm font-medium text-foreground">No changes</h3>
+                        <h3 className="text-sm font-medium text-foreground">{t('No changes')}</h3>
                         <p className="text-xs text-muted-foreground mt-1">
                           {activeDiffBase === 'since-base' && `No changes since ${selectedBase || gitContext?.defaultBranch || 'main'}${activeWorktreePath ? ' in this worktree' : ''} — committed, uncommitted, or untracked.`}
                           {showsLocalVsRemoteEmptyState && `Your local branch matches its remote-tracking branch${activeWorktreePath ? ' in this worktree' : ''}.`}
-                          {commitShaFromMode(activeDiffBase) && 'This commit has no changes.'}
+                          {commitShaFromMode(activeDiffBase) && t('This commit has no changes.')}
                           {activeDiffBase === 'uncommitted' && `No uncommitted changes${activeWorktreePath ? ' in this worktree' : ' to review'}.`}
-                          {activeDiffBase === 'staged' && "No staged changes. Stage some files with git add."}
-                          {activeDiffBase === 'unstaged' && "No unstaged changes. All changes are staged."}
+                          {activeDiffBase === 'staged' && t('No staged changes. Stage some files with git add.')}
+                          {activeDiffBase === 'unstaged' && t('No unstaged changes. All changes are staged.')}
                           {activeDiffBase === 'last-commit' && `No changes in the last commit${activeWorktreePath ? ' in this worktree' : ''}.`}
-                          {activeDiffBase === 'jj-current' && "No changes in the current jj change."}
-                          {activeDiffBase === 'jj-last' && "No changes in the last jj change."}
+                          {activeDiffBase === 'jj-current' && t('No changes in the current jj change.')}
+                          {activeDiffBase === 'jj-last' && t('No changes in the last jj change.')}
                           {activeDiffBase === 'workspace-current' && "No current changes in the workspace repositories."}
                           {activeDiffBase === 'workspace-staged' && "No staged changes in the workspace repositories."}
                           {activeDiffBase === 'workspace-unstaged' && "No unstaged changes in the workspace repositories."}
@@ -6501,15 +6506,15 @@ const ReviewApp: React.FC = () => {
                           {activeDiffBase === 'merge-base' && `No changes vs ${selectedBase || gitContext?.defaultBranch || 'main'}${activeWorktreePath ? ' in this worktree' : ''}.`}
                           {activeDiffBase === 'all' && `No tracked files${activeWorktreePath ? ' in this worktree' : ' in this repository'}.`}
                           {isStaticPatch && (patchHasDiffHeaders
-                            ? 'The patch contains no changes.'
-                            : 'The patch could not be parsed as a unified diff.')}
+                            ? t('The patch contains no changes.')
+                            : t('The patch could not be parsed as a unified diff.'))}
                         </p>
                       </>
                     )}
                   </div>
                   {((reviewMode === 'workspace' ? workspaceDiffOptions : gitContext?.diffOptions)?.length ?? 0) > 1 && (
                     <p className="text-xs text-muted-foreground/60">
-                      Try selecting a different view from the dropdown.
+                      {t('Try selecting a different view from the dropdown.')}
                     </p>
                   )}
                 </div>
@@ -6596,7 +6601,7 @@ const ReviewApp: React.FC = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
             <div className="bg-card border border-border rounded-xl w-full max-w-2xl flex flex-col max-h-[80vh] shadow-2xl">
               <div className="p-4 border-b border-border flex justify-between items-center">
-                <h3 className="font-semibold text-sm">Export Review Feedback</h3>
+                <h3 className="font-semibold text-sm">{t('Export Review Feedback')}</h3>
                 <button
                   onClick={() => setShowExportModal(false)}
                   className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
@@ -6621,7 +6626,7 @@ const ReviewApp: React.FC = () => {
                   }}
                   className="px-3 py-1.5 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 transition-colors"
                 >
-                  Copy to Clipboard
+                  {t('Copy to Clipboard')}
                 </button>
               </div>
             </div>
@@ -6666,8 +6671,8 @@ const ReviewApp: React.FC = () => {
         <ConfirmDialog
           isOpen={showNoAnnotationsDialog}
           onClose={() => setShowNoAnnotationsDialog(false)}
-          title="No Annotations"
-          message="You haven't made any annotations yet. There's nothing to copy."
+          title={t('No Annotations')}
+          message={t("You haven't made any annotations yet. There's nothing to copy.")}
           variant="info"
         />
 
@@ -6701,7 +6706,7 @@ const ReviewApp: React.FC = () => {
             title={compactConfirmItem.confirm.title}
             message={compactConfirmItem.confirm.message}
             confirmText={compactConfirmItem.confirm.confirmText}
-            cancelText="Cancel"
+            cancelText={t('Cancel')}
             variant="warning"
             showCancel
           />
@@ -6714,11 +6719,11 @@ const ReviewApp: React.FC = () => {
             setShowExitWarning(false);
             handleExit();
           }}
-          title="Annotations Won't Be Sent"
-          message={<>You have {totalAnnotationCount} annotation{totalAnnotationCount !== 1 ? 's' : ''} that will be lost if you close.</>}
-          subMessage="To send your feedback, use Send Feedback instead."
-          confirmText="Close Anyway"
-          cancelText="Cancel"
+          title={t("Annotations Won't Be Sent")}
+          message={t('You have {feedback} that will be lost if you close.', { feedback: annotationCountLabel(totalAnnotationCount, t) })}
+          subMessage={t('To send your feedback, use Send Feedback instead.')}
+          confirmText={t('Close Anyway')}
+          cancelText={t('Cancel')}
           variant="warning"
           showCancel
         />
@@ -6727,23 +6732,23 @@ const ReviewApp: React.FC = () => {
         <CompletionOverlay
           submitted={submitted}
           title={
-            submitted === 'approved' ? 'Changes Approved'
+            submitted === 'approved' ? t('Changes Approved')
             : submitted === 'exited' && agentClosed ? AGENT_CLOSED_TITLE
-            : submitted === 'exited' ? 'Session Closed'
-            : 'Feedback Sent'
+            : submitted === 'exited' ? t('Session Closed')
+            : t('Feedback Sent')
           }
           subtitle={
             submitted === 'exited' && agentClosed
               ? agentClosedSubtitle(agentClosed.unsentAnnotations, 'changes')
             : submitted === 'exited'
-              ? 'Review session closed without feedback.'
+              ? t('Review session closed without feedback.')
               : platformMode
                 ? submitted === 'approved'
-                  ? `Your approval was submitted to ${platformLabel}.`
-                  : `Your feedback was submitted to ${platformLabel}.`
+                  ? t('Your approval was submitted to {platform}.', { platform: platformLabel })
+                  : t('Your feedback was submitted to {platform}.', { platform: platformLabel })
                 : submitted === 'approved'
-                  ? `${getAgentName(origin)} will proceed with the changes.`
-                  : `${getAgentName(origin)} will address your review feedback.`
+                  ? t('{agent} will proceed with the changes.', { agent: getAgentName(origin) })
+                  : t('{agent} will address your review feedback.', { agent: getAgentName(origin) })
           }
           agentLabel={getAgentName(origin)}
           footer={starAskFooter}
@@ -6839,4 +6844,6 @@ const ReviewApp: React.FC = () => {
   );
 };
 
-export default ReviewApp;
+export default function LocalizedReviewApp() {
+  return <ReviewLanguageProvider><ReviewApp /></ReviewLanguageProvider>;
+}

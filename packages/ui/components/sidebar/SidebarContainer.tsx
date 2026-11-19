@@ -1,3 +1,4 @@
+import { useTranslate } from '../ReviewLanguage';
 /**
  * SidebarContainer — Shared sidebar shell
  *
@@ -130,6 +131,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
   onSelectMessage,
   messageAnnotationCounts,
 }) => {
+  const t = useTranslate();
   const compact = presentation === "overlay";
   const closeButtonRef = React.useRef<HTMLButtonElement>(null);
 
@@ -173,7 +175,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
       data-print-hide={compact ? true : undefined}
       role={compact ? "dialog" : undefined}
       aria-modal={compact ? true : undefined}
-      aria-label={compact ? "Plan navigator" : undefined}
+      aria-label={compact ? t('Plan navigator') : undefined}
       onKeyDown={compact ? handleCompactKeyDown : undefined}
       className={compact
         ? "pn-visible-viewport-stage z-[90] flex flex-col overflow-hidden bg-card text-foreground"
@@ -183,9 +185,9 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
       {compact && (
         <div className="flex h-[52px] flex-shrink-0 items-center justify-between border-b border-border/50 px-3">
           <div className="min-w-0">
-            <p className="text-sm font-semibold tracking-tight">Navigate</p>
+            <p className="text-sm font-semibold tracking-tight">{t('Navigate')}</p>
             <p className="truncate text-[11px] text-muted-foreground" aria-live="polite">
-              {pendingFileLabel ? `Opening ${pendingFileLabel}…` : 'Choose what to review'}
+              {pendingFileLabel ? `Opening ${pendingFileLabel}…` : t('Choose what to review')}
             </p>
           </div>
           <button
@@ -195,8 +197,8 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
             data-pn-touch-target="true"
             data-pn-touch-target-icon="true"
             className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
-            aria-label="Close navigator"
-            title="Close navigator"
+            aria-label={t('Close navigator')}
+            title={t('Close navigator')}
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -216,7 +218,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
             running={!!isAgentTerminalRunning}
             onClick={onToggleAgentTerminal}
             icon={<ReviewAgentsIcon className="w-3 h-3" />}
-            label="Agent"
+            label={t('Agent')}
           />
         )}
         {showContentsTab && (
@@ -238,7 +240,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
                 />
               </svg>
             }
-            label="Contents"
+            label={t('Contents')}
             touch={compact}
           />
         )}
@@ -261,7 +263,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
                 />
               </svg>
             }
-            label="Versions"
+            label={t('Versions')}
             touch={compact}
           />
         )}
@@ -270,7 +272,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
             active={activeTab === "messages"}
             onClick={() => onTabChange("messages")}
             icon={<MessagesIcon className="w-3 h-3" />}
-            label="Messages"
+            label={t('Messages')}
             badge={messageAnnotationCounts !== undefined && messageAnnotationCounts.size > 0}
             touch={compact}
           />
@@ -294,7 +296,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
                 />
               </svg>
             }
-            label="Files"
+            label={t('Files')}
             badge={hasFileAnnotations}
             touch={compact}
           />
@@ -318,7 +320,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
                 />
               </svg>
             }
-            label="Archive"
+            label={t('Archive')}
             touch={compact}
           />
         )}

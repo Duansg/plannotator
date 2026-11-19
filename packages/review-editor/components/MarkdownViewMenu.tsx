@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import React, { useState } from 'react';
 import { Menu } from '@base-ui/react/menu';
 import type { MarkdownFileView } from '../utils/markdownPreview';
@@ -11,9 +12,9 @@ import type { MarkdownFileView } from '../utils/markdownPreview';
  * FileHeader read-only, never carries it.
  */
 
-const LABEL: Record<MarkdownFileView, string> = { source: 'Source', changes: 'Changes', read: 'Read' };
+const LABEL = { source: 'Source', changes: 'Changes', read: 'Read' } as const satisfies Record<MarkdownFileView, string>;
 
-function describe(view: MarkdownFileView, status: MarkdownViewMenuProps['status']): string {
+function describe(view: MarkdownFileView, status: MarkdownViewMenuProps['status']) {
   if (view === 'source') return 'The line diff · comment on lines';
   if (view === 'changes') return 'Rendered, changes marked · select to comment';
   if (status === 'deleted') return 'The deleted version, rendered · select to comment';
@@ -57,14 +58,15 @@ export const MarkdownViewMenu: React.FC<MarkdownViewMenuProps> = ({
   touch = false,
   disabledReason = null,
 }) => {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const rendered = view !== 'source';
   const name = filePath.slice(filePath.lastIndexOf('/') + 1);
   const title = disabledReason
     ? disabledReason
     : rendered
-    ? `Showing ${LABEL[view]}. Select text to comment. P: next view`
-    : 'Show this Markdown file as Source, Changes or Read. P: next view';
+    ? t('Showing {view}. Select text to comment. P: next view', { view: t(LABEL[view]) })
+    : t('Show this Markdown file as Source, Changes or Read. P: next view');
 
   const trigger = touch ? (
     // Drawn 36 px; the ::after box makes the hit area 44 px (4 px past each
@@ -95,13 +97,13 @@ export const MarkdownViewMenu: React.FC<MarkdownViewMenuProps> = ({
         disabled={!!disabledReason}
         data-markdown-view-menu=""
         data-markdown-view={view}
-        aria-label={`${LABEL[view]} view of ${name}`}
+        aria-label={t('{view} view of {name}', { view: t(LABEL[view]), name })}
         title={touch && !disabledReason ? undefined : title}
         // The header row toggles the file's collapse on click.
         onClick={(event) => event.stopPropagation()}
       >
         <ViewIcon view={view} className="h-3.5 w-3.5 flex-none" />
-        {!iconOnly && <span className="@max-[479px]/file-header:hidden">{LABEL[view]}</span>}
+        {!iconOnly && <span className="@max-[479px]/file-header:hidden">{t(LABEL[view])}</span>}
         <svg className="h-3 w-3 flex-none opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" />
         </svg>
@@ -141,7 +143,7 @@ export const MarkdownViewMenu: React.FC<MarkdownViewMenuProps> = ({
                 <Menu.RadioItem
                   key={option}
                   value={option}
-                  label={LABEL[option]}
+                  label={t(LABEL[option])}
                   closeOnClick
                   data-markdown-view-option={option}
                   className={`flex cursor-default select-none items-start gap-2.5 rounded-md outline-none data-[highlighted]:bg-muted ${
@@ -150,9 +152,9 @@ export const MarkdownViewMenu: React.FC<MarkdownViewMenuProps> = ({
                 >
                   <ViewIcon view={option} className={`flex-none text-muted-foreground ${touch ? 'mt-0.5 h-[18px] w-[18px]' : 'mt-px h-4 w-4'}`} />
                   <span className="min-w-0 flex-1">
-                    <span className={`block font-medium text-foreground ${touch ? 'text-base' : 'text-xs'}`}>{LABEL[option]}</span>
+                    <span className={`block font-medium text-foreground ${touch ? 'text-base' : 'text-xs'}`}>{t(LABEL[option])}</span>
                     <span className={`mt-0.5 block text-muted-foreground ${touch ? 'text-sm' : 'text-xs leading-snug'}`}>
-                      {describe(option, status)}
+                      {t(describe(option, status))}
                     </span>
                   </span>
                   <Menu.RadioItemIndicator className="flex-none self-center text-primary">

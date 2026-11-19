@@ -37,6 +37,8 @@
 
 # Plannotator
 
+[简体中文](README.zh-CN.md) · English
+
 **⭐️ NEW:** [Plannotator Inbox](https://plannotator.ai/inbox/) is the missing review layer between you and multi-agent work. It surfaces decisions, prototypes, variations, plans, and everything you need to stay in the loop. Works with all coding agents and personal assistants.
 
 Plannotator is a local, browser-based review surface for AI coding agents: Claude Code, Codex, Copilot CLI, Gemini CLI, OpenCode, Kiro, Droid, Amp, DeepSeek Harness, and Pi. Plannotator Inbox also works with personal assistants (Grok Bot, Muse, Hermes, OpenClaw).
@@ -75,6 +77,8 @@ For a big change, start a [guided review](https://plannotator.ai/code-review#gui
 </td>
 </tr>
 </table>
+
+计划审阅、Markdown 批注和代码审阅支持简体中文。默认跟随浏览器语言，也可在 **Options → Settings → General → Interface language** 中选择 **简体中文**。
 
 ## Plannotator Inbox
 

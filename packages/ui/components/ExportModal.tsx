@@ -1,3 +1,4 @@
+import { useTranslate } from './ReviewLanguage';
 /**
  * Export Modal with tabs for Share, Annotations, and Notes
  *
@@ -98,6 +99,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   onSaveToNotes = defaultSaveToNotes,
   wrapCopiedAnnotations = wrapFeedbackForAgent,
 }) => {
+  const t = useTranslate();
   const defaultTab = initialTab || (sharingEnabled ? 'share' : 'annotations');
   const [activeTab, setActiveTab] = useState<Tab>(defaultTab);
   const [copied, setCopied] = useState<'short' | 'full' | 'annotations' | false>(false);
@@ -237,7 +239,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         {/* Header */}
         <div className="p-4 border-b border-border">
           <div className="flex justify-between items-center">
-            <h3 className="font-semibold text-sm">Export</h3>
+            <h3 className="font-semibold text-sm">{t('Export')}</h3>
             <div className="flex items-center gap-3">
               <span className="text-xs text-muted-foreground">
                 {annotationCount} annotation{annotationCount !== 1 ? 's' : ''}
@@ -269,7 +271,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  Share
+                  {t('Share')}
                 </button>
               )}
               <button
@@ -280,7 +282,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                Annotations
+                {t('Annotations')}
               </button>
               {showNotesTab && (
                 <button
@@ -291,7 +293,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  Notes
+                  {t('Notes')}
                 </button>
               )}
             </div>
@@ -304,7 +306,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               {shortShareUrl ? (
                 <div>
                   <label className="block text-xs font-medium text-muted-foreground mb-2">
-                    Share Link
+                    {t('Share Link')}
                   </label>
                   <div className="relative group">
                     <input
@@ -322,14 +324,14 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
-                          Copied
+                          {t('Copied')}
                         </>
                       ) : (
                         <>
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                           </svg>
-                          Copy
+                          {t('Copy')}
                         </>
                       )}
                     </button>
@@ -343,7 +345,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                   <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                     <path d="M12 2v4m0 12v4m-7.07-3.93l2.83-2.83m8.48-8.48l2.83-2.83M2 12h4m12 0h4m-3.93 7.07l-2.83-2.83M7.76 7.76L4.93 4.93" />
                   </svg>
-                  Generating short link...
+                  {t('Generating short link...')}
                 </div>
               ) : onGenerateShortUrl ? (
                 <div className={`p-3 rounded-lg border ${
@@ -360,7 +362,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                     onClick={onGenerateShortUrl}
                     className="px-3 py-1.5 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
                   >
-                    Create short link
+                    {t('Create short link')}
                   </button>
                   {shortUrlError && (
                     <p className="text-[10px] text-amber-500 mt-1">({shortUrlError})</p>
@@ -371,7 +373,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               {/* Full hash URL — hidden when hash-based sharing is unavailable (HTML mode) */}
               {!hashUnavailable && <div>
                 <label className="block text-xs font-medium text-muted-foreground mb-2">
-                  {shortShareUrl ? 'Full URL (backup)' : 'Shareable URL'}
+                  {shortShareUrl ? t('Full URL (backup)') : t('Shareable URL')}
                 </label>
                 <div className="relative group">
                   <textarea
@@ -389,14 +391,14 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
-                        Copied
+                        {t('Copied')}
                       </>
                     ) : (
                       <>
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                         </svg>
-                        Copy
+                        {t('Copy')}
                       </>
                     )}
                   </button>
@@ -418,7 +420,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           ) : activeTab === 'notes' && showNotesTab ? (
             <div className="space-y-4">
               <p className="text-xs text-muted-foreground">
-                Save this plan to your notes app without approving or denying.
+                {t('Save this plan to your notes app without approving or denying.')}
               </p>
 
               {/* Obsidian */}
@@ -442,13 +444,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                               : 'bg-primary text-primary-foreground hover:opacity-90'
                       }`}
                     >
-                      {saveStatus.obsidian === 'saving' ? 'Saving...'
-                        : saveStatus.obsidian === 'success' ? 'Saved'
-                        : saveStatus.obsidian === 'error' ? 'Failed'
-                        : 'Save'}
+                      {saveStatus.obsidian === 'saving' ? t('Saving...')
+                        : saveStatus.obsidian === 'success' ? t('Saved')
+                        : saveStatus.obsidian === 'error' ? t('Failed')
+                        : t('Save')}
                     </button>
                   ) : (
-                    <span className="text-xs text-muted-foreground">Not configured</span>
+                    <span className="text-xs text-muted-foreground">{t('Not configured')}</span>
                   )}
                 </div>
                 {isObsidianReady && (
@@ -487,13 +489,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                               : 'bg-primary text-primary-foreground hover:opacity-90'
                       }`}
                     >
-                      {saveStatus.bear === 'saving' ? 'Saving...'
-                        : saveStatus.bear === 'success' ? 'Saved'
-                        : saveStatus.bear === 'error' ? 'Failed'
-                        : 'Save'}
+                      {saveStatus.bear === 'saving' ? t('Saving...')
+                        : saveStatus.bear === 'success' ? t('Saved')
+                        : saveStatus.bear === 'error' ? t('Failed')
+                        : t('Save')}
                     </button>
                   ) : (
-                    <span className="text-xs text-muted-foreground">Not configured</span>
+                    <span className="text-xs text-muted-foreground">{t('Not configured')}</span>
                   )}
                 </div>
                 {!isBearReady && (
@@ -527,13 +529,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                               : 'bg-primary text-primary-foreground hover:opacity-90'
                       }`}
                     >
-                      {saveStatus.octarine === 'saving' ? 'Saving...'
-                        : saveStatus.octarine === 'success' ? 'Saved'
-                        : saveStatus.octarine === 'error' ? 'Failed'
-                        : 'Save'}
+                      {saveStatus.octarine === 'saving' ? t('Saving...')
+                        : saveStatus.octarine === 'success' ? t('Saved')
+                        : saveStatus.octarine === 'error' ? t('Failed')
+                        : t('Save')}
                     </button>
                   ) : (
-                    <span className="text-xs text-muted-foreground">Not configured</span>
+                    <span className="text-xs text-muted-foreground">{t('Not configured')}</span>
                   )}
                 </div>
                 {isOctarineReady && (
@@ -573,13 +575,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                                 : 'bg-primary text-primary-foreground hover:opacity-90'
                         }`}
                       >
-                        {saveStatus.notion === 'saving' ? 'Saving...'
-                          : saveStatus.notion === 'success' ? 'Saved'
-                          : saveStatus.notion === 'error' ? 'Failed'
-                          : 'Save'}
+                        {saveStatus.notion === 'saving' ? t('Saving...')
+                          : saveStatus.notion === 'success' ? t('Saved')
+                          : saveStatus.notion === 'error' ? t('Failed')
+                          : t('Save')}
                       </button>
                     ) : (
-                      <span className="text-xs text-muted-foreground">Not configured</span>
+                      <span className="text-xs text-muted-foreground">{t('Not configured')}</span>
                     )}
                   </div>
                   {isNotionReady && (
@@ -616,7 +618,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                     disabled={saveStatus.obsidian === 'saving' || saveStatus.bear === 'saving' || saveStatus.octarine === 'saving' || saveStatus.notion === 'saving'}
                     className="px-3 py-1.5 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
                   >
-                    Save All
+                    {t('Save All')}
                   </button>
                 </div>
               )}
@@ -636,13 +638,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               onClick={handleCopyAnnotations}
               className="px-3 py-1.5 rounded-md text-xs font-medium bg-muted hover:bg-muted/80 transition-colors"
             >
-              {copied === 'annotations' ? 'Copied!' : 'Copy'}
+              {copied === 'annotations' ? t('Copied!') : t('Copy')}
             </button>
             <button
               onClick={handleDownloadAnnotations}
               className="px-3 py-1.5 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
             >
-              Download Annotations
+              {t('Download Annotations')}
             </button>
           </div>
         )}

@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import React from 'react';
 import { ChevronsUpDown, FoldVertical } from 'lucide-react';
 import { configStore, useConfigValue } from '@plannotator/ui/config';
@@ -15,6 +16,7 @@ export interface ReviewDiffControlsProps {
 }
 
 export const ReviewDockRightActions: React.FC<ReviewDiffControlsProps> = (props) => {
+  const t = useTranslate();
   const storedDiffStyle = useConfigValue('diffStyle');
   const state = useReviewStateOptional();
   const splitTooNarrow = useEveryDiffPaneTooNarrowForSplit();
@@ -47,7 +49,7 @@ export const ReviewDockRightActions: React.FC<ReviewDiffControlsProps> = (props)
           </>
         )}
       </svg>
-      {state.allFilesAllCollapsed ? 'Expand all files' : 'Collapse all files'}
+      {state.allFilesAllCollapsed ? t('Expand all files') : t('Collapse all files')}
     </button>
   ) : undefined;
 
@@ -61,8 +63,8 @@ export const ReviewDockRightActions: React.FC<ReviewDiffControlsProps> = (props)
           disabled={!showCollapseAll}
           aria-hidden={!showCollapseAll || undefined}
           tabIndex={showCollapseAll ? undefined : -1}
-          title={state.allFilesAllCollapsed ? 'Expand all files' : 'Collapse all files'}
-          aria-label={state.allFilesAllCollapsed ? 'Expand all files' : 'Collapse all files'}
+          title={state.allFilesAllCollapsed ? t('Expand all files') : t('Collapse all files')}
+          aria-label={state.allFilesAllCollapsed ? t('Expand all files') : t('Collapse all files')}
           data-header-collapse-all-files={state.allFilesAllCollapsed ? 'collapsed' : 'open'}
         >
           {state.allFilesAllCollapsed ? <FoldVertical className="w-3.5 h-3.5" aria-hidden="true" /> : <ChevronsUpDown className="w-3.5 h-3.5" aria-hidden="true" />}

@@ -1,3 +1,4 @@
+import { useTranslate } from '../ReviewLanguage';
 /**
  * MessagesBrowser — Sidebar list of recent assistant messages.
  *
@@ -49,10 +50,11 @@ export const MessagesBrowser: React.FC<MessagesBrowserProps> = ({
   onSelect,
   annotationCounts,
 }) => {
+  const t = useTranslate();
   if (messages.length === 0) {
     return (
       <div className="p-4 text-xs text-muted-foreground text-center">
-        No recent assistant messages found.
+        {t('No recent assistant messages found.')}
       </div>
     );
   }
@@ -60,7 +62,7 @@ export const MessagesBrowser: React.FC<MessagesBrowserProps> = ({
   return (
     <div className="p-2">
       <div className="px-2 pt-1 pb-2 text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-        Recent messages — newest first
+        {t('Recent messages — newest first')}
       </div>
       <div className="space-y-0.5">
         {messages.map((msg, idx) => {

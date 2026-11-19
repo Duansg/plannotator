@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import React from 'react';
 
 export type ReviewStatusKind = 'platform-error' | 'workspace-error' | 'partial-diff' | 'stale-diff' | 'base-behind';
@@ -43,6 +44,7 @@ function Spinner() {
 }
 
 export const ReviewHeaderStatus: React.FC<ReviewHeaderStatusProps> = (props) => {
+  const t = useTranslate();
   const kind = pickReviewStatus(props);
   if (!kind) return null;
   const strip = props.variant === 'strip';
@@ -73,7 +75,7 @@ export const ReviewHeaderStatus: React.FC<ReviewHeaderStatusProps> = (props) => 
     const action = !props.canLoadFullDiff ? null : props.isLoadingFullDiff ? (
       <span className="flex items-center gap-1.5 font-medium" title="Recomputing the full diff from the local checkout. You can keep reviewing.">
         <Spinner />
-        Loading full diff…
+        {t('Loading full diff…')}
       </span>
     ) : (
       <button
@@ -83,7 +85,7 @@ export const ReviewHeaderStatus: React.FC<ReviewHeaderStatusProps> = (props) => 
         className={ACTION}
         title="Recompute the full diff from the local checkout (may wait for the background clone; you can keep reviewing)"
       >
-        Load full diff
+        {t('Load full diff')}
       </button>
     );
     return (
@@ -94,7 +96,7 @@ export const ReviewHeaderStatus: React.FC<ReviewHeaderStatusProps> = (props) => 
             ? `${props.platformLabel} omitted diff content for some files because this PR is too large`
             : 'The platform omitted diff content for some files and this session has no local checkout to recompute from. CLI sessions can re-run the review with --local.'}
         >
-          {strip ? 'The platform omitted part of this diff.' : props.canLoadFullDiff ? 'Partial diff' : 'Partial diff (no local checkout)'}
+          {strip ? 'The platform omitted part of this diff.' : props.canLoadFullDiff ? t('Partial diff') : t('Partial diff (no local checkout)')}
         </span>
         {action}
       </div>
@@ -104,12 +106,12 @@ export const ReviewHeaderStatus: React.FC<ReviewHeaderStatusProps> = (props) => 
   if (kind === 'stale-diff') {
     return (
       <div className={strip ? STRIP_WARN : PILL_WARN} data-review-status={kind}>
-        <span>Diff out of date</span>
-        <button type="button" data-pn-touch-target={touch} onClick={props.onRefreshStaleDiff} className={ACTION} title="Re-run the diff with the current settings">
-          Refresh
+        <span>{t('Diff out of date')}</span>
+        <button type="button" data-pn-touch-target={touch} onClick={props.onRefreshStaleDiff} className={ACTION} title={t('Re-run the diff with the current settings')}>
+          {t('Refresh')}
         </button>
         {!strip && (
-          <button type="button" onClick={props.onDismissStaleDiff} className="leading-none opacity-70 hover:opacity-100" title="Dismiss" aria-label="Dismiss stale diff notice">
+          <button type="button" onClick={props.onDismissStaleDiff} className="leading-none opacity-70 hover:opacity-100" title={t('Dismiss')} aria-label={t('Dismiss stale diff notice')}>
             ×
           </button>
         )}
@@ -123,11 +125,11 @@ export const ReviewHeaderStatus: React.FC<ReviewHeaderStatusProps> = (props) => 
       {props.isFetchingBase ? (
         <span className="flex items-center gap-1.5 font-medium">
           <Spinner />
-          Fetching…
+          {t('Fetching…')}
         </span>
       ) : (
         <button type="button" data-pn-touch-target={touch} onClick={props.onFetchBase} disabled={props.isFetchingBase} className={ACTION} title="git fetch the default branch and recompute the diff">
-          Fetch
+          {t('Fetch')}
         </button>
       )}
     </div>

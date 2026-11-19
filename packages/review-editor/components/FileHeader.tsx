@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import { SemanticFileBadge } from './SemanticFileBadge';
 import { COMPACT_FILE_HEADER_HEIGHT } from '../utils/diffChromeMetrics';
 import { EllipsisName } from './EllipsisName';
@@ -148,6 +149,7 @@ const FileHeaderView: React.FC<FileHeaderProps> = ({
   keepsFolder = false,
   openInLine,
 }) => {
+  const t = useTranslate();
   const state = useReviewStateOptional();
   const isCompactTouchLayout = compactTouchLayout ?? state?.isCompactTouchLayout ?? false;
   const headerRef = useRef<HTMLDivElement>(null);
@@ -216,7 +218,7 @@ const FileHeaderView: React.FC<FileHeaderProps> = ({
             </>
           )}
         </span>
-        {isTest && <FileKindIcon kind="test" size={13} className="ml-1.5 flex-none text-muted-foreground" title="Test file" />}
+        {isTest && <FileKindIcon kind="test" size={13} className="ml-1.5 flex-none text-muted-foreground" title={t('Test file')} />}
         {(additions > 0 || deletions > 0 || (status && status !== 'modified') || isGenerated) && (
           <span className="min-w-0 shrink-[1000] ml-3 flex h-4 flex-wrap items-center gap-x-1.5 overflow-hidden text-[12px] leading-4 tabular-nums" data-file-header-counts="">
             {additions > 0 && <span className="text-success">+{formatCount(additions)}</span>}
@@ -280,7 +282,7 @@ const FileHeaderView: React.FC<FileHeaderProps> = ({
                 <circle cx="12" cy="12" r="9" />
               </svg>
             )}
-            <span className={TIGHT_LABEL}>Viewed</span>
+            <span className={TIGHT_LABEL}>{t('Viewed')}</span>
           </button>
         )}
         {showStageControl && canStage && onStage && (
@@ -294,8 +296,8 @@ const FileHeaderView: React.FC<FileHeaderProps> = ({
                   ? 'bg-primary/15 text-primary'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
             }`}
-            title={isStaged ? "Unstage this file (A)" : "Stage this file (A)"}
-            aria-label={isStaged ? "Unstage this file" : "Stage this file"}
+            title={isStaged ? t('Unstage this file (A)') : t('Stage this file (A)')}
+            aria-label={isStaged ? t('Unstage this file') : t('Stage this file')}
           >
             {isStaging ? (
               <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -327,8 +329,8 @@ const FileHeaderView: React.FC<FileHeaderProps> = ({
             }}
             onClick={() => fileCommentRef.current && onFileComment(fileCommentRef.current)}
             className={`${actionFold} text-xs rounded transition-colors flex items-center text-muted-foreground hover:text-foreground hover:bg-muted ${commentLabel ? 'gap-1 px-2 py-1' : 'px-1.5 py-1'}`}
-            title="Add file-scoped comment"
-            aria-label="Comment on this file"
+            title={t('Add file-scoped comment')}
+            aria-label={t('Comment on this file')}
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4v-4z" />
@@ -351,13 +353,13 @@ const FileHeaderView: React.FC<FileHeaderProps> = ({
                 ? 'opacity-50 cursor-not-allowed text-muted-foreground'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted'
             }`}
-            title={editDisabledReason ?? 'Edit this file to author a suggestion (experimental)'}
+            title={editDisabledReason ?? t('Edit this file to author a suggestion (experimental)')}
             data-testid="edit-session-start"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
-            <span className={TIGHT_LABEL}>Edit</span>
+            <span className={TIGHT_LABEL}>{t('Edit')}</span>
           </button>
         )}
       </div>}

@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import React, { useEffect, useCallback, useState, useMemo, useRef } from 'react';
 import { focusFileHeaderWhenLost } from '../utils/focusFileHeader';
 import { useCompactTouchLayout } from '@plannotator/ui/hooks/useIsMobile';
@@ -223,6 +224,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
   sinceBaseSections,
   snapshotId,
 }) => {
+  const t = useTranslate();
   const isSearchVisible = !!onSearchChange && (isSearchOpen || !!searchQuery.trim());
 
   const effectiveGroupBy: FileGroupBy = groupBy ?? (groupByKind ? 'kind' : 'none');
@@ -504,7 +506,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
           className="px-2 pb-2"
           style={countColumnVars(totalAdditions, totalDeletions)}
         >
-          <nav aria-label="Review views" className="pb-1 flex flex-col empty:hidden" data-review-views-nav="">
+          <nav aria-label={t('Review views')} className="pb-1 flex flex-col empty:hidden" data-review-views-nav="">
           {onSelectAllFiles && files.length > 0 && (
             <AllChangesRow
               active={isAllFilesActive}
@@ -531,7 +533,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
               title="View attachments shared in this pull request or merge request"
             >
               <Paperclip className="w-3.5 h-3.5 flex-shrink-0" />
-              <span>Artifacts</span>
+              <span>{t('Artifacts')}</span>
               <span className="ml-auto rounded bg-muted px-1.5 py-0.5 font-mono text-xs tabular-nums text-muted-foreground" data-nav-count="">
                 {prArtifactCount}
               </span>
@@ -555,7 +557,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
 
           {searchQuery.trim() ? (
             isSearchPending ? (
-              <div className="py-6 text-center text-xs text-muted-foreground/50">Searching…</div>
+              <div className="py-6 text-center text-xs text-muted-foreground/50">{t('Searching…')}</div>
             ) : searchGroups.length > 0 ? (
               searchGroups.map((group) => (
                 <SearchFileGroup
@@ -567,7 +569,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
                 />
               ))
             ) : (
-              <div className="py-6 text-center text-xs text-muted-foreground/50">No matches found</div>
+              <div className="py-6 text-center text-xs text-muted-foreground/50">{t('No matches found')}</div>
             )
           ) : showAllFiles && !repoReady ? (
             <RepoListingPlaceholder state={repoState} onRetry={repoFiles?.reload} />
@@ -637,8 +639,9 @@ const INITIALLY_FOLDED: ReadonlySet<string> = new Set(['generated']);
 
 /** The All files list while it loads, or why there is none. */
 export const RepoListingPlaceholder: React.FC<{ state: RepoFiles['state'] | undefined; onRetry?: () => void }> = ({ state, onRetry }) => {
+  const t = useTranslate();
   if (!state || state.status === 'idle' || state.status === 'loading') {
-    return <div className="py-6 text-center text-xs text-muted-foreground/60" data-repo-files-loading>Listing the repository…</div>;
+    return <div className="py-6 text-center text-xs text-muted-foreground/60" data-repo-files-loading>{t('Listing the repository…')}</div>;
   }
   if (state.status === 'unavailable') {
     return <div className="px-3 py-6 text-center text-xs text-muted-foreground/70" data-repo-files-unavailable={state.reason}>{state.message}</div>;
@@ -646,10 +649,10 @@ export const RepoListingPlaceholder: React.FC<{ state: RepoFiles['state'] | unde
   if (state.status === 'error') {
     return (
       <div className="px-3 py-6 text-center text-xs text-muted-foreground/70" data-repo-files-error>
-        <div>The repository could not be listed.</div>
+        <div>{t('The repository could not be listed.')}</div>
         {onRetry && (
           <button type="button" className="mt-2 text-primary hover:underline" onClick={onRetry}>
-            Try again
+            {t('Try again')}
           </button>
         )}
       </div>
@@ -773,6 +776,7 @@ const SearchMatchRow: React.FC<{
   isActive: boolean;
   onSelect: () => void;
 }> = ({ match, searchQuery, isActive, onSelect }) => {
+  const t = useTranslate();
   const sideColor =
     match.side === 'addition'
       ? 'text-success'
@@ -788,7 +792,7 @@ const SearchMatchRow: React.FC<{
       onClick={onSelect}
     >
       <span className="flex-shrink-0 text-muted-foreground/40 w-7 text-right tabular-nums">{match.lineNumber}</span>
-      <span className={`flex-shrink-0 w-3 text-center ${sideColor}`} title={match.side === 'addition' ? 'Added line' : match.side === 'deletion' ? 'Removed line' : 'Unchanged line'} data-search-side={match.side}>{match.side === 'addition' ? '+' : match.side === 'deletion' ? '−' : ''}</span>
+      <span className={`flex-shrink-0 w-3 text-center ${sideColor}`} title={match.side === 'addition' ? t('Added line') : match.side === 'deletion' ? t('Removed line') : t('Unchanged line')} data-search-side={match.side}>{match.side === 'addition' ? '+' : match.side === 'deletion' ? '−' : ''}</span>
       <span className="truncate leading-relaxed">{highlightQuery(match.snippet, searchQuery)}</span>
     </button>
   );

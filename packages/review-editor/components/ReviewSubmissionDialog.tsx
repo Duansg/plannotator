@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import React, { useRef } from 'react';
 import type { CodeAnnotation } from '@plannotator/ui/types';
 import { getPRPlatformCapabilities, type Platform, type PRReviewAction, type PRReviewFileLevelComment, type PRReviewSubmissionPartial } from '@plannotator/shared/pr-types';
@@ -483,6 +484,7 @@ export function ReviewSubmissionDialog({
   platformLabel,
   postingTo,
 }: ReviewSubmissionDialogProps) {
+  const t = useTranslate();
   const isCompactTouchLayout = useCompactTouchLayout();
   const generalCommentRef = useRef<HTMLTextAreaElement>(null);
   if (!isOpen) return null;
@@ -529,12 +531,12 @@ export function ReviewSubmissionDialog({
       >
         <div className="min-h-0 overflow-y-auto p-4 sm:p-6">
         <DialogTitle className="font-semibold mb-1">
-          {isApprove ? `Approve ${mrLabel}` : isRequestChanges ? 'Request Changes' : 'Post Review Comments'}
+          {isApprove ? `Approve ${mrLabel}` : isRequestChanges ? t('Request Changes') : t('Post Review Comments')}
         </DialogTitle>
         <DialogDescription className="text-sm text-muted-foreground mb-3">
           {isApprove
-            ? 'Add a general comment to the approval (optional).'
-            : 'Review what will be posted.'}
+            ? t('Add a general comment to the approval (optional).')
+            : t('Review what will be posted.')}
         </DialogDescription>
 
         {/* The native radios stay visible, so keyboard focus keeps the
@@ -542,7 +544,7 @@ export function ReviewSubmissionDialog({
             guides.show viewer scans this file and pins its CSS. */}
         {showEventChoice && (
           <fieldset data-review-event-choice className="mb-3">
-            <legend className="sr-only">Review type</legend>
+            <legend className="sr-only">{t('Review type')}</legend>
             <div className="grid grid-cols-2 gap-1 rounded-md bg-muted p-1">
               {eventOptions.map(option => {
                 const checked = action === option.value;
@@ -583,7 +585,7 @@ export function ReviewSubmissionDialog({
           data-pn-mobile-editable
           value={generalComment}
           onChange={e => onGeneralCommentChange(e.target.value)}
-          placeholder="Leave a comment..."
+          placeholder={t('Leave a comment...')}
           rows={3}
           disabled={bodyLocked}
           aria-describedby={bodyLocked ? 'review-general-comment-lock' : undefined}
@@ -659,7 +661,7 @@ export function ReviewSubmissionDialog({
                     {target.status === 'partial' && target.partial && (
                       <div className="mt-2 rounded-md border border-warning/30 bg-warning/10 p-2 text-xs">
                         <div className="font-medium text-warning">
-                          Review partially posted
+                          {t('Review partially posted')}
                         </div>
                         <div className="mt-1 text-muted-foreground">
                           This attempt posted {target.partial.postedFileCommentCount} inline comment{target.partial.postedFileCommentCount === 1 ? '' : 's'}{target.partial.reviewBodyPosted ? ' and the general comment' : ''}.
@@ -681,7 +683,7 @@ export function ReviewSubmissionDialog({
                             <CopyButton
                               text={buildFailedCommentsMarkdown(target.partial)}
                               variant="inline"
-                              label="Copy failed comments"
+                              label={t('Copy failed comments')}
                               className="mt-1"
                             />
                           </>
@@ -765,7 +767,7 @@ export function ReviewSubmissionDialog({
                   variant="inline"
                   label={submission.orphans.length > 1
                     ? `Copy ${group.reason === 'full-stack' ? 'full-stack' : 'unmapped'}`
-                    : 'Copy as Markdown'}
+                    : t('Copy as Markdown')}
                 />
               ))}
             </div>
@@ -793,7 +795,7 @@ export function ReviewSubmissionDialog({
             disabled={isSubmitting}
             className="px-4 py-2 rounded-md text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 disabled:opacity-50"
           >
-            {hasPartial || hasBlocked ? 'Close' : 'Cancel'}
+            {hasPartial || hasBlocked ? t('Close') : t('Cancel')}
           </button>
           <button
             data-pn-touch-target
@@ -808,18 +810,18 @@ export function ReviewSubmissionDialog({
             }`}
           >
             {isSubmitting
-              ? 'Posting...'
+              ? t('Posting...')
               : hasBlocked
-                ? 'Retry blocked'
+                ? t('Retry blocked')
               : hasPartial
-                ? 'Retry Unposted'
+                ? t('Retry Unposted')
                 : hasFailed
-                  ? 'Retry Failed'
+                  ? t('Retry Failed')
                   : isApprove
-                    ? 'Approve'
+                    ? t('Approve')
                     : isRequestChanges
-                      ? 'Request Changes'
-                      : 'Post Comments'}
+                      ? t('Request Changes')
+                      : t('Post Comments')}
           </button>
         </div>
       </DialogContent>

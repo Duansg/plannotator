@@ -1,3 +1,4 @@
+import { english, type Translate } from '@plannotator/ui/utils/reviewLanguage';
 import type { PaneTab } from './paneLayout';
 import { REVIEW_ALL_FILES_PANEL_ID, REVIEW_PANEL_TYPES } from '../dock/reviewPanelTypes';
 
@@ -7,7 +8,8 @@ export function isReferencesTab(tab: PaneTab): boolean {
   return tab.component === REVIEW_PANEL_TYPES.CODE_NAV;
 }
 
-export function tabLabel(tab: PaneTab): string {
+export function tabLabel(tab: PaneTab, t: Translate = english): string {
+  if (tab.id === REVIEW_ALL_FILES_PANEL_ID) return t('All changes');
   return isReferencesTab(tab) && tab.title.startsWith(REFERENCES_PREFIX) ? tab.title.slice(REFERENCES_PREFIX.length) : tab.title;
 }
 

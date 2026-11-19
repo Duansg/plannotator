@@ -1,3 +1,4 @@
+import { useTranslate } from './ReviewLanguage';
 import React from 'react';
 import { useTheme } from './ThemeProvider';
 import { THEME_MODES } from './themeModes';
@@ -62,6 +63,7 @@ export function paletteSwatchColors(theme: ThemeInfo, half: ThemeHalf): string[]
 }
 
 export const ThemeTab: React.FC<ThemeTabProps> = ({ onPreview, compact }) => {
+  const t = useTranslate();
   const { mode, setMode, manageFavicon } = useTheme();
   const faviconStyle = useConfigValue('faviconStyle');
   const { half, setHalf, pair, themes, nameOf, choose } = useThemePaletteHalves();
@@ -90,7 +92,7 @@ export const ThemeTab: React.FC<ThemeTabProps> = ({ onPreview, compact }) => {
     <div className={compact ? '' : 'space-y-5'}>
       {/* Mode */}
       <div className={compact ? 'flex items-center gap-3 mb-2' : 'space-y-2'}>
-        {!compact && <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Mode</label>}
+        {!compact && <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('Mode')}</label>}
         <div className="flex gap-1">
           {THEME_MODES.map(({ id, label, Icon }) => (
             <button
@@ -105,19 +107,19 @@ export const ThemeTab: React.FC<ThemeTabProps> = ({ onPreview, compact }) => {
             >
               <span className="flex items-center gap-1.5">
                 <Icon className="w-3 h-3" />
-                {label}
+                {t(label)}
               </span>
             </button>
           ))}
         </div>
         {!compact && (
           <p className="text-[11px] text-muted-foreground/70">
-            System uses your OS and switches between the two themes below.
+            {t('System uses your OS and switches between the two themes below.')}
           </p>
         )}
         {!compact && manageFavicon && (
           <div className="space-y-1.5 pt-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Favicon</label>
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('Favicon')}</label>
             <FaviconStyleControl selected={faviconStyle} />
           </div>
         )}
@@ -134,7 +136,7 @@ export const ThemeTab: React.FC<ThemeTabProps> = ({ onPreview, compact }) => {
         {!compact && (
           <>
             <div className="flex items-center justify-between border-t border-border pt-5">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Theme</label>
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('Theme')}</label>
               <div className="flex items-center gap-3">
                 <span className="text-[10px] text-muted-foreground/70 flex items-center gap-1">
                   <SyntaxLinesIcon className="w-2.5 h-2.5" />
@@ -145,7 +147,7 @@ export const ThemeTab: React.FC<ThemeTabProps> = ({ onPreview, compact }) => {
                     onClick={onPreview}
                     className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:border-primary/40 transition-colors"
                   >
-                    Preview Mode
+                    {t('Preview Mode')}
                   </button>
                 )}
               </div>
@@ -190,7 +192,7 @@ export const ThemeTab: React.FC<ThemeTabProps> = ({ onPreview, compact }) => {
               >
                 {/* Syntax highlighting badge */}
                 {theme.syntaxHighlighting && (
-                  <div className="absolute top-1 right-1" title="Matched syntax highlighting in diffs">
+                  <div className="absolute top-1 right-1" title={t('Matched syntax highlighting in diffs')}>
                     <SyntaxLinesIcon className="w-2.5 h-2.5 text-muted-foreground/50" />
                   </div>
                 )}

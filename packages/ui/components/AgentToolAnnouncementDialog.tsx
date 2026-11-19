@@ -1,3 +1,4 @@
+import { useTranslate } from './ReviewLanguage';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { agentToolHostName } from '../utils/agentToolSetting';
@@ -56,6 +57,7 @@ export function AgentToolAnnouncementDialog({
   onTurnOn,
   onDismiss,
 }: AgentToolAnnouncementDialogProps) {
+  const t = useTranslate();
   const notNowRef = useRef<HTMLButtonElement>(null);
   const doneRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -180,20 +182,18 @@ export function AgentToolAnnouncementDialog({
         </div>
         <div className="min-h-0 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
           <h2 id="agent-tool-announcement-title" className="text-balance text-xl font-semibold tracking-tight sm:text-2xl">
-            Do you use Plannotator as a skill?
+            {t('Do you use Plannotator as a skill?')}
           </h2>
           <div id="agent-tool-announcement-description">
             <p className="mt-2 text-pretty text-sm leading-relaxed text-muted-foreground">
-              Like asking {agent} to &ldquo;use Plannotator to show me the HTML plan&rdquo; or &ldquo;open a
-              Plannotator code review&rdquo;.
+              {t('Like asking {agent} to “use Plannotator to show me the HTML plan” or “open a Plannotator code review”.', { agent })}
             </p>
             <p className="mt-3 text-pretty text-sm leading-relaxed text-foreground">
-              If so, turn on the Plannotator tool. Those requests then open right away while {agent} keeps
-              working, and your feedback comes back as a message.
+              {t('If so, turn on the Plannotator tool. Those requests then open right away while {agent} keeps working, and your feedback comes back as a message.', { agent })}
             </p>
           </div>
           <p className="mt-3 text-pretty text-xs leading-relaxed text-muted-foreground" data-agent-tool-cost>
-            Adds about 800 tokens to each request.{save.kind === 'saved' ? '' : ` ${startsLine(host)}`}
+            {t('Adds about 800 tokens to each request.')}{save.kind === 'saved' ? '' : ` ${t(startsLine(host))}`}
           </p>
 
           <div className="mt-5 flex flex-col gap-3">
@@ -204,7 +204,7 @@ export function AgentToolAnnouncementDialog({
                 className="inline-flex min-w-0 items-center gap-2 text-sm text-foreground"
               >
                 <span className="size-2 shrink-0 rounded-full bg-success" aria-hidden="true" />
-                Turned on. {startsLine(host)}
+                {t('Turned on.')} {t(startsLine(host))}
               </p>
             ) : save.kind === 'failed' ? (
               <p
@@ -226,7 +226,7 @@ export function AgentToolAnnouncementDialog({
                   onClick={() => onDismissRef.current()}
                   className={`${PRIMARY_BUTTON_CLASS} w-full sm:w-auto`}
                 >
-                  Done
+                  {t('Done')}
                 </button>
               ) : (
                 <>
@@ -238,7 +238,7 @@ export function AgentToolAnnouncementDialog({
                     data-agent-tool-not-now
                     className={`${SECONDARY_BUTTON_CLASS} w-full justify-center text-balance py-1.5 text-center sm:w-auto`}
                   >
-                    No, I&rsquo;ll just use slash commands
+                    {t('No, I’ll just use slash commands')}
                   </button>
                   <button
                     type="button"
@@ -248,7 +248,7 @@ export function AgentToolAnnouncementDialog({
                     data-agent-tool-turn-on
                     className={`${PRIMARY_BUTTON_CLASS} w-full sm:w-auto`}
                   >
-                    {saving ? 'Turning on…' : save.kind === 'failed' ? 'Try again' : 'Yes, turn it on'}
+                    {saving ? t('Turning on…') : save.kind === 'failed' ? t('Try again') : t('Yes, turn it on')}
                   </button>
                 </>
               )}
@@ -280,7 +280,7 @@ const DIALOG_LAYOUT_CSS = `
 `;
 
 /** When the change applies on each host; part of the small print and the saved status. */
-function startsLine(host: AgentToolOfferHost): string {
+function startsLine(host: AgentToolOfferHost) {
   return host === 'opencode' ? 'Starts the next time OpenCode starts.' : 'Starts with your next Pi session.';
 }
 

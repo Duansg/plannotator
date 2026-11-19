@@ -35,6 +35,7 @@ import {
   type DocumentTextSize,
 } from '../utils/documentTextSize';
 import { normalizeFontFamilyName } from '../utils/cssFontFamily';
+import { isLanguagePreference, type LanguagePreference } from '../utils/reviewLanguage';
 import { storage } from '../utils/storage';
 import { isLookChoiceResolved } from '../utils/lookAndFeelAnnouncement';
 import { generateIdentity } from '../utils/generateIdentity';
@@ -210,6 +211,16 @@ export const SETTINGS = {
       return isFaviconStyle(v) ? v : undefined;
     },
     toServer: (v: FaviconStyle) => ({ favicon: v }),
+  },
+
+  reviewLanguage: {
+    defaultValue: 'auto' as LanguagePreference,
+    fromCookie: () => {
+      const value = storage.getItem('plannotator-review-language');
+      return isLanguagePreference(value) ? value : undefined;
+    },
+    toCookie: (value: LanguagePreference) => storage.setItem('plannotator-review-language', value),
+    serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
   gridEnabled: {

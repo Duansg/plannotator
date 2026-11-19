@@ -1,3 +1,4 @@
+import type { ReviewMessage } from './reviewLanguage';
 /**
  * Cookie-based storage utility
  *
@@ -98,7 +99,7 @@ const AUTO_CLOSE_KEY = 'plannotator-auto-close';
 
 export type AutoCloseDelay = 'off' | '0' | '3' | '5';
 
-export const AUTO_CLOSE_OPTIONS: { value: AutoCloseDelay; label: string; description: string }[] = [
+export const AUTO_CLOSE_OPTIONS: { value: AutoCloseDelay; label: ReviewMessage; description: ReviewMessage }[] = [
   { value: 'off', label: 'Off', description: 'Tab stays open after submitting' },
   { value: '0', label: 'Immediately', description: 'Tab closes immediately after submitting' },
   { value: '3', label: 'After 3 seconds', description: 'Tab closes 3 seconds after submitting' },

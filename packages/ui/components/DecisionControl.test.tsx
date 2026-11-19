@@ -118,6 +118,20 @@ describe('DecisionControl', () => {
     }
   });
 
+  test.skipIf(!hasDom)('IME confirmation and cancellation stay in the open note field', async () => {
+    const handlers = makeHandlers();
+    await mountControl(REVIEW_FEEDBACK, handlers);
+    await openMenu();
+    await clickItem('Send with a note…');
+    await typeNote('请修改这一行');
+    await pressKey(noteInput(), { key: 'Enter', ctrlKey: true, isComposing: true });
+    await pressKey(noteInput(), { key: 'Escape', isComposing: true });
+    expect(handlers['note-with-feedback']).not.toHaveBeenCalled();
+    expect(noteInput().value).toBe('请修改这一行');
+    await pressKey(noteInput(), { key: 'Enter', ctrlKey: true });
+    expect(handlers['note-with-feedback']).toHaveBeenCalledWith('请修改这一行');
+  });
+
   // Guards a revert to a one-line field: Enter stays a newline, Mod+Enter
   // (both modifier spellings) fires the composer action once, trimmed.
   test.skipIf(!hasDom)('Mod+Enter submits the trimmed note; plain Enter does not submit', async () => {

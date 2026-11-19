@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import React from 'react';
 import {
   ActionMenu,
@@ -73,6 +74,7 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
   origin,
   isWSL = false,
 }) => {
+  const t = useTranslate();
   const { theme, setTheme } = useTheme();
 
   const showUpdateDot = !!updateInfo?.updateAvailable && !updateInfo.dismissed;
@@ -101,13 +103,13 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
               ? 'bg-muted text-foreground'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted'
           }`}
-          title="Options"
-          aria-label="Options"
+          title={t('Options')}
+          aria-label={t('Options')}
           aria-expanded={isOpen}
         >
           {isOpen ? <CloseIcon /> : <MenuIcon />}
           {/* The dot says an update is out; the label never moves (no shimmer). */}
-          {compactTouchLayout && <span className="hidden lg:inline">Options</span>}
+          {compactTouchLayout && <span className="hidden lg:inline">{t('Options')}</span>}
           {showUpdateDot && (
             <span className={`absolute w-2 h-2 rounded-full bg-primary ring-2 ring-background ${
               compactTouchLayout ? 'top-0.5 right-0.5 lg:-top-0.5 lg:-right-0.5' : 'top-0.5 right-0.5'
@@ -121,9 +123,9 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
           {compactTouchLayout && (compactDestination || compactActions.length > 0) && (
             <>
               <div className="px-3 py-2 space-y-2">
-                <ActionMenuSectionLabel plain>Review</ActionMenuSectionLabel>
+                <ActionMenuSectionLabel plain>{t('Review')}</ActionMenuSectionLabel>
                 {compactDestination && (
-                  <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted/50 p-0.5" aria-label="Review destination">
+                  <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted/50 p-0.5" aria-label={t('Review destination')}>
                     {(['agent', 'platform'] as const).map((destination) => {
                       const selected = compactDestination.value === destination;
                       const label = destination === 'agent' ? 'Agent' : compactDestination.platformLabel;
@@ -169,7 +171,7 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
           )}
 
           <div className="px-3 py-2 space-y-1.5">
-            <ActionMenuSectionLabel plain>Theme</ActionMenuSectionLabel>
+            <ActionMenuSectionLabel plain>{t('Theme')}</ActionMenuSectionLabel>
             <div className="flex items-center gap-1 rounded-lg bg-muted/50 p-0.5">
               {THEME_MODES.map(({ id, label, Icon }) => (
                 <button
@@ -186,7 +188,7 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
                   }`}
                 >
                   <Icon />
-                  <span>{label}</span>
+                  <span>{t(label)}</span>
                 </button>
               ))}
             </div>
@@ -200,7 +202,7 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
               onOpenSettings();
             }}
             icon={<SettingsIcon />}
-            label="Settings"
+            label={t('Settings')}
           />
           <ActionMenuItem
             onClick={() => {
@@ -208,7 +210,7 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
               onOpenExport();
             }}
             icon={<ExportIcon />}
-            label="Export"
+            label={t('Export')}
           />
           {agentInstructionsEnabled && (
             <ActionMenuItem
@@ -217,8 +219,8 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
                 onCopyAgentInstructions();
               }}
               icon={<ReviewAgentsIcon />}
-              label="Agent Instructions"
-              subtitle="Copy agent instructions for external review comments"
+              label={t('Agent Instructions')}
+              subtitle={t('Copy agent instructions for external review comments')}
             />
           )}
 
@@ -232,7 +234,7 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
                     onOpenGuide();
                   }}
                   icon={<GuideIcon />}
-                  label="Guided Review"
+                  label={t('Guided Review')}
                 />
               )}
               {onOpenAnnotations && (
@@ -242,7 +244,7 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
                     onOpenAnnotations();
                   }}
                   icon={<SidebarIcon />}
-                  label="Comments"
+                  label={t('Comments')}
                 />
               )}
               {onOpenAI && (
@@ -262,7 +264,7 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
                     onOpenAgents();
                   }}
                   icon={<ReviewAgentsIcon className="w-3.5 h-3.5" />}
-                  label="Agents"
+                  label={t('Agents')}
                 />
               )}
             </>
@@ -277,8 +279,8 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
             }}
             icon={<FileTreeMenuIcon />}
             label={compactTouchLayout
-              ? (isFileTreeOpen ? 'Close review navigation' : 'Open review navigation')
-              : (isFileTreeOpen ? 'Hide File Tree' : 'Show File Tree')
+              ? (isFileTreeOpen ? t('Close review navigation') : t('Open review navigation'))
+              : (isFileTreeOpen ? t('Hide File Tree') : t('Show File Tree'))
             }
             badge={compactTouchLayout ? undefined : <KbdHint keys={[modKey, 'B']} />}
           />
@@ -289,7 +291,7 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
                 onToggleSidebar();
               }}
               icon={<SidebarIcon />}
-              label={isSidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
+              label={isSidebarOpen ? t('Hide Sidebar') : t('Show Sidebar')}
               badge={<KbdHint keys={[modKey, '.']} />}
             />
           )}

@@ -343,7 +343,8 @@ import {
 import { applyRestoredAnchors } from './restoredAnchors';
 import { annotationOwnsHighlight } from '@plannotator/ui/utils/annotationOwnsHighlight';
 import { blocksForDocument, blocksForRenderAs, collectSubmittedAnnotations, mergeExternalAnnotations, mergeExternalsIntoMessageEntries, resolveFeedbackSections } from './feedbackDocuments';
-import { buildDecisionSpec, type DecisionActionId, type DecisionMenuItem } from '@plannotator/ui/utils/decisionSpec';
+import { ReviewLanguageProvider, useTranslate } from '@plannotator/ui/components/ReviewLanguage';
+import { annotationCountLabel, buildDecisionSpec, type DecisionActionId, type DecisionMenuItem } from '@plannotator/ui/utils/decisionSpec';
 import { DecisionNoteDialog, type DecisionControlProps, type DecisionHandler } from '@plannotator/ui/components/DecisionControl';
 import { AgentSwitchMenuSection, PermissionModeMenuLine } from '@plannotator/ui/components/PlanDecisionMenuExtras';
 import { resolvePlanDecisionAction } from './planDecision';
@@ -522,6 +523,7 @@ const itemId = (item: { id: string }): string => item.id;
 const RESIZE_HANDLE_TOOLTIP = 'Click to close · Drag to resize';
 
 const App: React.FC = () => {
+  const t = useTranslate();
   useViewportEnvironment();
   // A plain-text paste into our text fields is inserted by the page: Chrome 155-156 on macOS drops
   // dictated (synthetic ⌘V) text otherwise. Remove once Chrome 157 is stable (pasteInsert.ts).
@@ -3615,7 +3617,9 @@ const App: React.FC = () => {
   // The plan decision control's confirm when saved file changes are the only
   // feedback: approving loses nothing, the agent just isn't told (the words of
   // the retired "Feedback Won't Be Sent" dialog's saved-files case).
-  const savedFileAwarenessOnlyText = `Your ${savedFileChangesLabel} ${savedFileChangesVerb} already on disk. The agent won't be told about ${savedFileChangesPronoun}.`;
+  const savedFileAwarenessOnlyText = t(savedFileChanges.length === 1
+    ? "Your saved file change is already on disk. The agent won't be told about it."
+    : "Your saved file changes are already on disk. The agent won't be told about them.");
   const savedFileAwarenessMixedMessage = hasSavedFileChanges
     ? <> Your {savedFileChangesLabel} will stay on disk, but the agent won't be told about {savedFileChangesPronoun}.</>
     : null;
@@ -4689,6 +4693,7 @@ const App: React.FC = () => {
     } catch (error) {
       setIsSubmitting(false);
       showSendFailureToast({
+        t,
         what: 'approval',
         error,
         onRetry: () => { void headerHandlersRef.current.handleApprove(options); },
@@ -4744,6 +4749,7 @@ const App: React.FC = () => {
     } catch (error) {
       setIsSubmitting(false);
       showSendFailureToast({
+        t,
         what: 'feedback',
         error,
         onRetry: () => { void headerHandlersRef.current.handleDeny(); },
@@ -4857,6 +4863,7 @@ const App: React.FC = () => {
       setIsSubmitting(false);
       scheduleDraftSaveAfterSubmitFailure();
       showSendFailureToast({
+        t,
         what: 'feedback',
         error,
         onRetry: () => { void headerHandlersRef.current.handleAnnotateFeedback(options); },
@@ -4923,6 +4930,7 @@ const App: React.FC = () => {
       setIsSubmitting(false);
       scheduleDraftSaveAfterSubmitFailure();
       showSendFailureToast({
+        t,
         what: 'approval',
         error,
         onRetry: () => { void headerHandlersRef.current.handleAnnotateApprove(options); },
@@ -6615,7 +6623,8 @@ const App: React.FC = () => {
     // M1 ruling: agent-terminal delivered feedback flips the state to empty,
     // but Done still posts the full payload — the spec adjusts its copy.
     feedbackDelivered: isCurrentFeedbackDeliveredToAgent,
-  }), [
+  }, t), [
+    t,
     approvalNotesSupported,
     feedbackAnnotationCount,
     gate,
@@ -6634,8 +6643,8 @@ const App: React.FC = () => {
 
   // Per-surface Close titles (spec §3.1 / prototype :521-522).
   const annotateCloseTitle = annotateSource === 'message'
-    ? 'Dismiss without telling the agent'
-    : 'Close session without sending';
+    ? t('Dismiss without telling the agent')
+    : t('Close session without sending');
 
   const annotateDecision = useMemo(() => ({
     spec: annotateDecisionSpec,
@@ -6685,7 +6694,8 @@ const App: React.FC = () => {
       approveTarget: planApproveTarget,
       ...(hasOnlySavedFileChanges ? { savedFilesOnly: savedFileAwarenessOnlyText } : {}),
     },
-  }), [
+  }, t), [
+    t,
     hasOnlySavedFileChanges,
     savedFileAwarenessOnlyText,
     agentName,
@@ -6710,7 +6720,8 @@ const App: React.FC = () => {
   // Rows under the decisions: OpenCode's agent picker (it replaced
   // ApproveDropdown's caret), or the permission mode Claude Code's Approve
   // already sends, with a way to Settings where it is changed.
-  const permissionModeLabel = PERMISSION_MODE_OPTIONS.find((option) => option.value === permissionMode)?.label ?? permissionMode;
+  const permissionOption = PERMISSION_MODE_OPTIONS.find(option => option.value === permissionMode);
+  const permissionModeLabel = permissionOption ? t(permissionOption.label) : permissionMode;
   const planMenuFooter = useMemo<DecisionControlProps['menuFooter']>(() => {
     if (origin === 'opencode' && availableAgents.length > 0) {
       return <AgentSwitchMenuSection agents={availableAgents} />;
@@ -6833,13 +6844,13 @@ const App: React.FC = () => {
       ? [
           {
             id: 'feedback',
-            label: 'Send feedback to bot',
+            label: t('Send feedback to bot'),
             onSelect: handleCallbackFeedback,
             disabled: compactActionBusy || !callbackShareUrlReady,
           },
           {
             id: 'approve',
-            label: 'Approve design',
+            label: t('Approve design'),
             onSelect: handleCallbackApprove,
             disabled: compactActionBusy || !callbackShareUrlReady,
           },
@@ -6853,7 +6864,7 @@ const App: React.FC = () => {
                   // the missing positive outcome at zero was the defect).
                   {
                     id: 'exit' as const,
-                    label: 'Close session',
+                    label: t('Close session'),
                     onSelect: handleHeaderAnnotateExit,
                     disabled: compactActionBusy,
                   },
@@ -6861,7 +6872,7 @@ const App: React.FC = () => {
                     id: annotateCompactPrimaryId,
                     label: annotateDecisionSpec.primary.mobileLabel ?? annotateDecisionSpec.primary.label,
                     subtitle: feedbackAnnotationCount > 0
-                      ? `${feedbackAnnotationCount} annotation${feedbackAnnotationCount === 1 ? '' : 's'}`
+                      ? annotationCountLabel(feedbackAnnotationCount, t)
                       : hasFeedbackToSend
                         ? 'Edited document'
                         : undefined,
@@ -6895,7 +6906,7 @@ const App: React.FC = () => {
                     subtitle: answersOnlyFeedback
                       ? `${questionAnswerCount} answer${questionAnswerCount === 1 ? '' : 's'}`
                       : feedbackAnnotationCount > 0
-                        ? `${feedbackAnnotationCount} annotation${feedbackAnnotationCount === 1 ? '' : 's'}`
+                        ? annotationCountLabel(feedbackAnnotationCount, t)
                         : hasFeedbackToSend
                           ? 'Edited document'
                           : undefined,
@@ -6926,14 +6937,14 @@ const App: React.FC = () => {
     ? []
     : isApiMode && !linkedDocHook.isActive && archive.archiveMode
       ? [
-          { id: 'copy', label: 'Copy plan', onSelect: archive.copy },
-          { id: 'done', label: 'Done', onSelect: archive.done },
+          { id: 'copy', label: t('Copy plan'), onSelect: archive.copy },
+          { id: 'done', label: t('Done'), onSelect: archive.done },
         ]
       : isApiMode && !linkedDocHook.isActive && goalSetupMode
         ? [
             {
               id: 'exit',
-              label: 'Close goal setup',
+              label: t('Close goal setup'),
               onSelect: handleGoalSetupExit,
               disabled: compactActionBusy,
             },
@@ -6979,7 +6990,7 @@ const App: React.FC = () => {
         ...(!goalSetupMode
           ? [{
               id: 'annotations' as const,
-              label: 'Annotations',
+              label: t('Annotations'),
               subtitle: feedbackAnnotationCount > 0
                 ? `${feedbackAnnotationCount} item${feedbackAnnotationCount === 1 ? '' : 's'}`
                 : undefined,
@@ -6989,7 +7000,7 @@ const App: React.FC = () => {
         ...(!goalSetupMode && canUseAskAI
           ? [{
               id: 'ai' as const,
-              label: 'Ask AI',
+              label: t('Ask AI'),
               subtitle: visibleAIMessages.length > 0
                 ? `${visibleAIMessages.length} message${visibleAIMessages.length === 1 ? '' : 's'}`
                 : undefined,
@@ -6999,7 +7010,7 @@ const App: React.FC = () => {
         ...(compactReviewActions.length > 0
           ? [{
               id: 'review' as const,
-              label: 'Review and finish',
+              label: t('Review and finish'),
               subtitle: hasFeedbackToSend
                 ? 'Feedback ready'
                 : compactCanApprove
@@ -7017,7 +7028,7 @@ const App: React.FC = () => {
         ...(bundleSwitcher && bundleSwitcher.index > 1
           ? [{
               id: 'bundle-previous' as const,
-              label: 'Previous file',
+              label: t('Previous file'),
               subtitle: bundleFiles?.[bundleSwitcher.index - 2] ? annotateBundleBaseName(bundleFiles[bundleSwitcher.index - 2]!.path) : undefined,
               onSelect: bundleSwitcher.onPrevious,
             }]
@@ -7025,7 +7036,7 @@ const App: React.FC = () => {
         ...(bundleSwitcher && bundleSwitcher.index < bundleSwitcher.total
           ? [{
               id: 'bundle-next' as const,
-              label: 'Next file',
+              label: t('Next file'),
               subtitle: bundleFiles?.[bundleSwitcher.index] ? annotateBundleBaseName(bundleFiles[bundleSwitcher.index]!.path) : undefined,
               onSelect: bundleSwitcher.onNext,
             }]
@@ -7033,7 +7044,7 @@ const App: React.FC = () => {
         ...(canEditMarkdown && !isEditingMarkdown && !isPlanDiffActive && !archive.archiveMode && !isHtmlSurface
           ? [{
               id: 'edit' as const,
-              label: 'Edit document',
+              label: t('Edit document'),
               subtitle: activeSourceSave ? `Edit ${activeSourceSave.basename}` : 'Edit the plan text directly',
               onSelect: handleEditExitClick,
             }]
@@ -7653,7 +7664,7 @@ const App: React.FC = () => {
         {isCompactAnnotationsOpen && (
           <CompactPlanStage
             id="pn-compact-plan-annotations"
-            title="Annotations"
+            title={t('Annotations')}
             subtitle={compactDocumentTitle}
             count={feedbackAnnotationCount}
             onClose={closeCompactPlanSurface}
@@ -7667,7 +7678,7 @@ const App: React.FC = () => {
         {isCompactAIOpen && canUseAskAI && (
           <CompactPlanStage
             id="pn-compact-plan-ai"
-            title="Ask AI"
+            title={t('Ask AI')}
             subtitle={compactDocumentTitle}
             count={visibleAIMessages.length}
             onClose={closeCompactPlanSurface}
@@ -7681,7 +7692,7 @@ const App: React.FC = () => {
         {isCompactReviewOpen && compactReviewActions.length > 0 && (
           <CompactPlanStage
             id="pn-compact-plan-review"
-            title="Review"
+            title={t('Review')}
             subtitle={compactDocumentTitle}
             onClose={closeCompactPlanSurface}
           >
@@ -7703,7 +7714,7 @@ const App: React.FC = () => {
               onClick={linkedDocHook.dismissError}
               className="ml-auto text-xs text-destructive/60 hover:text-destructive"
             >
-              dismiss
+              {t('dismiss')}
             </button>
           </div>
         )}
@@ -7719,7 +7730,7 @@ const App: React.FC = () => {
                 onClick={handleOverwriteDiskConflict}
                 className="text-xs font-medium text-primary hover:text-primary/80"
               >
-                Overwrite disk
+                {t('Overwrite disk')}
               </button>
             )}
             <button
@@ -7727,7 +7738,7 @@ const App: React.FC = () => {
               onClick={handleReloadDiskConflict}
               className="text-xs font-medium text-muted-foreground hover:text-foreground"
             >
-              Reload from disk
+              {t('Reload from disk')}
             </button>
           </div>
         )}
@@ -7743,14 +7754,14 @@ const App: React.FC = () => {
               disabled={activeSaveStatus === 'saving'}
               className="text-xs font-medium text-primary hover:text-primary/80 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Save
+              {t('Save')}
             </button>
           </div>
         )}
         {showAgentTerminalDeliveryStatus && (
           <div className="border-b border-primary/20 bg-primary/5 px-4 py-2 text-xs text-muted-foreground flex-shrink-0">
-            <span className="font-medium text-foreground">Sent to agent.</span>{" "}
-            Keep this window open while it runs. Close Plannotator when you're done.
+            <span className="font-medium text-foreground">{t('Sent to agent.')}</span>{" "}
+            {t("Keep this window open while it runs. Close Plannotator when you're done.")}
           </div>
         )}
 
@@ -7804,10 +7815,10 @@ const App: React.FC = () => {
               isOpen={!!draftBanner}
               onClose={handleDismissDraft}
               onConfirm={handleRestoreDraft}
-              title="Draft Recovered"
+              title={t('Draft Recovered')}
               message={draftBanner ? draftBannerMessage(draftBanner) : ''}
-              confirmText="Restore"
-              cancelText="Dismiss"
+              confirmText={t('Restore')}
+              cancelText={t('Dismiss')}
               showCancel
             />
             <div ref={planAreaRef} className={`${isHtmlSurface ? 'h-full flex flex-col' : 'min-h-full flex flex-col items-center px-2 py-3 md:px-10 md:py-8 xl:px-16'} relative z-10`}>
@@ -7924,7 +7935,7 @@ const App: React.FC = () => {
                           <Tooltip
                             side="top"
                             align="end"
-                            content={type === 'wide' ? 'Hide panels and expand document width' : `Hide panels, keep document width (${modKey}+.)`}
+                            content={type === 'wide' ? t('Hide panels and expand document width') : t('Hide panels, keep document width ({shortcut})', { shortcut: `${modKey}+.` })}
                           >
                             <button
                               type="button"
@@ -7936,7 +7947,7 @@ const App: React.FC = () => {
                                   : 'text-muted-foreground/50 hover:text-muted-foreground'
                               }`}
                             >
-                              {type.charAt(0).toUpperCase() + type.slice(1)}
+                              {t(type === 'wide' ? 'Wide' : 'Focus')}
                             </button>
                           </Tooltip>
                         </React.Fragment>
@@ -7966,13 +7977,13 @@ const App: React.FC = () => {
                                   {/* Invisible widest label reserves the width so Save/Saving/Saved
                                       swap without nudging neighbors (font-agnostic, no fixed px). */}
                                   <span className="grid justify-items-start">
-                                    <span aria-hidden className="invisible col-start-1 row-start-1">Saving</span>
+                                    <span aria-hidden className="invisible col-start-1 row-start-1">{t('Saving')}</span>
                                     <span className="col-start-1 row-start-1">
                                       {activeSaveStatus === 'saving'
-                                        ? 'Saving'
+                                        ? t('Saving')
                                         : hasUnsavedDiskChanges
-                                          ? 'Save'
-                                          : 'Saved'}
+                                          ? t('Save')
+                                          : t('Saved')}
                                     </span>
                                   </span>
                                   {/* Dot slot is always present — only its color changes — so the
@@ -7993,10 +8004,10 @@ const App: React.FC = () => {
                             align="end"
                             content={
                               !isEditingMarkdown
-                                ? 'Edit the document text directly'
+                                ? t('Edit the document text directly')
                                 : cancelMode
-                                  ? 'Discard your edits and stop editing'
-                                  : 'Commit your edits and return to annotating'
+                                  ? t('Discard your edits and stop editing')
+                                  : t('Commit your edits and return to annotating')
                             }
                           >
                             <button
@@ -8014,10 +8025,10 @@ const App: React.FC = () => {
                               }`}
                             >
                               {!isEditingMarkdown
-                                ? 'Edit'
+                                ? t('Edit')
                                 : cancelMode
-                                  ? (confirmCancelEdits ? 'Discard?' : 'Cancel')
-                                  : 'Done'}
+                                  ? (confirmCancelEdits ? t('Discard?') : t('Cancel'))
+                                  : t('Done')}
                             </button>
                           </Tooltip>
                         </>
@@ -8160,7 +8171,7 @@ const App: React.FC = () => {
                     }
                     imageBaseDir={linkedDocHook.isActive ? activeDocBaseDir : imageBaseDir}
                     codePathBaseDir={activeDocBaseDir}
-                    copyLabel={annotateSource === 'message' ? 'Copy message' : annotateSource === 'file' || annotateSource === 'folder' ? 'Copy file' : undefined}
+                    copyLabel={annotateSource === 'message' ? t('Copy message') : annotateSource === 'file' || annotateSource === 'folder' ? t('Copy file') : undefined}
                     archiveInfo={archive.currentInfo}
                     sourceInfo={sourceInfo}
                     openInAppPath={annotateMode ? (linkedDocHook.isActive ? (linkedDocHook.filepath ?? null) : sourceFilePath) : null}
@@ -8234,8 +8245,8 @@ const App: React.FC = () => {
                     <button
                       onClick={() => setIsPanelOpen(false)}
                       className="relative rounded-md p-1.5 text-muted-foreground transition-colors before:absolute before:-inset-1.5 before:content-[''] hover:text-foreground md:hidden"
-                      title="Close panel"
-                      aria-label="Close AI panel"
+                      title={t('Close panel')}
+                      aria-label={t('Close AI panel')}
                     >
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -8306,21 +8317,21 @@ const App: React.FC = () => {
           isOpen={showSourceFileEditWarning}
           onClose={closeSourceFileEditWarning}
           onConfirm={confirmSourceFileEditWarning}
-          title={sourceFileEditWarningAction === 'close' ? 'Unsaved File Edits' : "File Edits Won't Be Sent"}
+          title={sourceFileEditWarningAction === 'close' ? t('Unsaved File Edits') : t("File Edits Won't Be Sent")}
           message={
             sourceFileEditWarningAction === 'close'
-              ? <>You have unsaved file edits. They are not saved to disk and will be lost if you close this session.</>
+              ? <>{t('You have unsaved file edits. They are not saved to disk and will be lost if you close this session.')}</>
               : <>You have unsaved file edits. They are not saved to disk, and {agentName} won't get them if you {sourceFileEditWarningAction === 'approve' ? 'approve' : 'send feedback'}.</>
           }
-          subMessage="Save or discard the file edits first if you want Plannotator to keep them."
+          subMessage={t('Save or discard the file edits first if you want Plannotator to keep them.')}
           confirmText={
             sourceFileEditWarningAction === 'approve'
-              ? 'Approve Anyway'
+              ? t('Approve Anyway')
               : sourceFileEditWarningAction === 'close'
-                ? 'Close Anyway'
-                : 'Send Anyway'
+                ? t('Close Anyway')
+                : t('Send Anyway')
           }
-          cancelText="Cancel"
+          cancelText={t('Cancel')}
           variant="warning"
           showCancel
         />
@@ -8336,15 +8347,15 @@ const App: React.FC = () => {
             setShowExitWarning(false);
             handleAnnotateExit();
           }}
-          title="Feedback Won't Be Sent"
+          title={t("Feedback Won't Be Sent")}
           message={
             hasOnlySavedFileChanges
-              ? <>{savedFileChangesOnDiskMessage} The agent will not get that context if you close.</>
+              ? <>{savedFileChangesOnDiskMessage} {t('The agent will not get that context if you close.')}</>
               : <>You have {feedbackLoss} that will be lost if you close.{savedFileAwarenessMixedMessage}</>
           }
-          subMessage={hasOnlySavedFileChanges ? 'To tell the agent what changed, use Send Feedback instead.' : 'To send this feedback, use Send Feedback instead.'}
-          confirmText="Close Anyway"
-          cancelText="Cancel"
+          subMessage={hasOnlySavedFileChanges ? t('To tell the agent what changed, use Send Feedback instead.') : t('To send this feedback, use Send Feedback instead.')}
+          confirmText={t('Close Anyway')}
+          cancelText={t('Cancel')}
           variant="warning"
           showCancel
         />
@@ -8379,7 +8390,7 @@ const App: React.FC = () => {
             title={compactConfirmItem.confirm.title}
             message={compactConfirmItem.confirm.message}
             confirmText={compactConfirmItem.confirm.confirmText}
-            cancelText="Cancel"
+            cancelText={t('Cancel')}
             variant="warning"
             showCancel
           />
@@ -8389,9 +8400,9 @@ const App: React.FC = () => {
         <ConfirmDialog
           isOpen={!!shareLoadError && !isApiMode}
           onClose={clearShareLoadError}
-          title="Shared Plan Could Not Be Loaded"
+          title={t('Shared Plan Could Not Be Loaded')}
           message={shareLoadError}
-          subMessage="You are viewing a demo plan. This is sample content — it is not your data or anyone else's."
+          subMessage={t("You are viewing a demo plan. This is sample content — it is not your data or anyone else's.")}
           variant="warning"
         />
 
@@ -8443,15 +8454,15 @@ const App: React.FC = () => {
         <CompletionOverlay
           submitted={submitted}
           title={
-            archive.archiveMode ? 'Archive Closed'
+            archive.archiveMode ? t('Archive Closed')
             : submitted === 'exited' && agentClosed ? closedReviewCopy(agentClosed).title
-            : submitted === 'exited' ? 'Session Closed'
-            : goalSetupMode ? 'Answers Submitted'
+            : submitted === 'exited' ? t('Session Closed')
+            : goalSetupMode ? t('Answers Submitted')
             : submitted === 'approved'
-              ? (annotateMode ? 'Approved' : 'Plan Approved')
-              : submitted === 'done' ? 'Done'
-              : annotateMode ? 'Feedback Sent'
-            : 'Feedback Sent'
+              ? (annotateMode ? t('Approved') : t('Plan Approved'))
+              : submitted === 'done' ? t('Done')
+              : annotateMode ? t('Feedback Sent')
+            : t('Feedback Sent')
           }
           subtitle={
             submitted === 'exited' && agentClosed
@@ -8466,20 +8477,20 @@ const App: React.FC = () => {
                     : 'document',
                 ).subtitle
             : submitted === 'exited'
-              ? 'Annotation session closed without feedback.'
+              ? t('Annotation session closed without feedback.')
               : archive.archiveMode
-                ? 'You can reopen with plannotator archive.'
+                ? t('You can reopen with plannotator archive.')
                 : goalSetupMode
-                  ? `${agentName} will use your answers to continue.`
+                  ? t('{agent} will use your answers to continue.', { agent: agentName })
                 : submitted === 'approved'
                   ? (annotateMode
-                      ? `${agentName} will proceed.`
-                      : `${agentName} will proceed with the implementation.`)
+                      ? t('{agent} will proceed.', { agent: agentName })
+                      : t('{agent} will proceed with the implementation.', { agent: agentName }))
                   : submitted === 'done'
-                    ? `Nothing was sent to ${agentName}.`
+                    ? t('Nothing was sent to {agent}.', { agent: agentName })
                   : annotateMode
-                    ? `${agentName} will address your feedback on the ${annotateSource === 'message' ? 'message' : annotateSource === 'folder' ? 'files' : 'file'}.`
-                    : `${agentName} will revise the plan based on your feedback.`
+                    ? t(annotateSource === 'message' ? '{agent} will address your feedback on the message.' : annotateSource === 'folder' ? '{agent} will address your feedback on the files.' : '{agent} will address your feedback on the file.', { agent: agentName })
+                    : t('{agent} will revise the plan based on your feedback.', { agent: agentName })
           }
           agentLabel={agentName}
           footer={starAskFooter}
@@ -8551,4 +8562,6 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default function LocalizedApp() {
+  return <ReviewLanguageProvider><App /></ReviewLanguageProvider>;
+}

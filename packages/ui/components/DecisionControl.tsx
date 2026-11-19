@@ -1,3 +1,4 @@
+import { useTranslate } from './ReviewLanguage';
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Check, ChevronDown, Loader2, Send } from 'lucide-react';
 import { Button } from './ui/button';
@@ -8,7 +9,7 @@ import { ConfirmDialog, type ConfirmDialogProps } from './ConfirmDialog';
 import { useDismissablePopover } from '../hooks/useDismissablePopover';
 import { useCompactTouchLayout } from '../hooks/useIsMobile';
 import { cn } from '../lib/utils';
-import { isCommentSubmitKey } from '../utils/commentSubmitKey';
+import { isCommentSubmitKey, isImeCompositionKey } from '../utils/commentSubmitKey';
 import type {
   DecisionActionId,
   DecisionComposer,
@@ -142,11 +143,13 @@ export const DecisionNoteField: React.FC<DecisionNoteFieldProps> = ({
   onTextChange,
   onSubmit,
   onCancel,
-  placeholder = 'Add a note...',
+  placeholder: customPlaceholder,
   disabled = false,
   autoFocus = true,
   enterSubmits = false,
 }) => {
+  const t = useTranslate();
+  const placeholder = customPlaceholder ?? t('Add a note...');
   const ref = useAutoGrow(text);
 
   useEffect(() => {
@@ -156,6 +159,10 @@ export const DecisionNoteField: React.FC<DecisionNoteFieldProps> = ({
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (isImeCompositionKey(event)) {
+        event.stopPropagation();
+        return;
+      }
       if (event.key === 'Escape') {
         // A consuming rung of the Esc ladder: the host apps run their own
         // Escape ladders and must not also see this event.
@@ -164,7 +171,7 @@ export const DecisionNoteField: React.FC<DecisionNoteFieldProps> = ({
         onCancel();
         return;
       }
-      if (enterSubmits ? isCommentSubmitKey(event, true) : event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+      if (isCommentSubmitKey(event, enterSubmits)) {
         event.preventDefault();
         event.stopPropagation();
         if (!disabled) onSubmit();
@@ -292,6 +299,7 @@ export const DecisionControl: React.FC<DecisionControlProps> = ({
   onDraftsChange,
   openNoteRequest,
 }) => {
+  const t = useTranslate();
   const rootRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const caretRef = useRef<HTMLButtonElement>(null);
@@ -576,7 +584,7 @@ export const DecisionControl: React.FC<DecisionControlProps> = ({
         disabled={busy}
         aria-haspopup="menu"
         aria-expanded={popover !== null}
-        aria-label="More decisions"
+        aria-label={t('More decisions')}
         data-decision-caret="true"
         className={cn('rounded-l-none px-1.5', spec.primary.muted && 'bg-muted text-foreground [@media(hover:hover)_and_(pointer:fine)]:hover:bg-muted/70')}
       >
@@ -672,7 +680,7 @@ export const DecisionControl: React.FC<DecisionControlProps> = ({
           title={confirmItem.confirm.title}
           message={confirmItem.confirm.message}
           confirmText={confirmItem.confirm.confirmText}
-          cancelText="Cancel"
+          cancelText={t('Cancel')}
           variant="warning"
           showCancel
         />

@@ -1,3 +1,4 @@
+import { english, type Translate } from '../utils/reviewLanguage';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { copyTextToClipboard } from '../utils/clipboard';
@@ -54,7 +55,7 @@ export function dismissSendFailureToast(): void {
  * from the theme, since the Toasters run sonner's light theme and its
  * secondary fill disappears on a dark card.
  */
-function CopyFeedbackButton({ getText }: { getText: () => string | undefined }) {
+function CopyFeedbackButton({ getText, t }: { getText: () => string | undefined; t: Translate }) {
   const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle');
   return (
     <button
@@ -72,7 +73,7 @@ function CopyFeedbackButton({ getText }: { getText: () => string | undefined }) 
         void copyTextToClipboard(text).then((copied) => setState(copied ? 'copied' : 'failed'));
       }}
     >
-      {state === 'copied' ? 'Copied' : state === 'failed' ? 'Copy failed' : 'Copy feedback'}
+      {t(state === 'copied' ? 'Copied' : state === 'failed' ? 'Copy failed' : 'Copy feedback')}
     </button>
   );
 }
@@ -80,6 +81,7 @@ function CopyFeedbackButton({ getText }: { getText: () => string | undefined }) 
 export function showSendFailureToast(options: {
   /** What did not go out: names the toast's title. */
   what: 'feedback' | 'approval';
+  t?: Translate;
   /** The error the send threw (`DecisionSendError` says why). */
   error: unknown;
   /** Sends the same decision again, from the page as it is now. */
@@ -88,7 +90,7 @@ export function showSendFailureToast(options: {
    *  Omitted when the decision carries no text (a bare approval). */
   copyText?: () => string | undefined;
 }): void {
-  const { what, error, onRetry, copyText } = options;
+  const { what, error, onRetry, copyText, t = english } = options;
   const failure = sendFailureOf(error);
   dismissSendFailureToast(); // replaced, never stacked
   const id = `plannotator-send-failure-${++failures}`;
@@ -96,20 +98,20 @@ export function showSendFailureToast(options: {
   const forget = () => {
     if (currentId === id) currentId = null;
   };
-  toast.error(what === 'approval' ? 'Approval not sent' : 'Feedback not sent', {
+  toast.error(t(what === 'approval' ? 'Approval not sent' : 'Feedback not sent'), {
     id,
     onDismiss: forget,
-    description: describeSendFailure(failure),
+    description: describeSendFailure(failure, t),
     duration: Infinity,
     // It stays up, so it sits at the bottom, clear of the header's decision
     // control and the annotation panel the reviewer may want to read.
     position: 'bottom-center',
     closeButton: true,
-    cancel: copyText ? <CopyFeedbackButton getText={copyText} /> : undefined,
+    cancel: copyText ? <CopyFeedbackButton getText={copyText} t={t} /> : undefined,
     // An already-decided review cannot take the decision again.
     action: canRetrySend(failure)
       ? {
-          label: 'Retry',
+          label: t('Retry'),
           onClick: () => {
             if (inFlight > 0) return;
             onRetry();

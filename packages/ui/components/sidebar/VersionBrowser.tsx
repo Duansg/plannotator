@@ -1,3 +1,4 @@
+import { useTranslate } from '../ReviewLanguage';
 /**
  * VersionBrowser — Version list for plan diff
  *
@@ -48,6 +49,7 @@ export const VersionBrowser: React.FC<VersionBrowserProps> = ({
   fetchingVersion,
   onFetchVersions,
 }) => {
+  const t = useTranslate();
   // Fetch version list once versionInfo is available
   useEffect(() => {
     if (versionInfo && versions.length === 0) {
@@ -58,7 +60,7 @@ export const VersionBrowser: React.FC<VersionBrowserProps> = ({
   if (!versionInfo) {
     return (
       <div className="p-4 text-xs text-muted-foreground text-center">
-        No version history available.
+        {t('No version history available.')}
       </div>
     );
   }
@@ -71,10 +73,10 @@ export const VersionBrowser: React.FC<VersionBrowserProps> = ({
       {/* Current version info */}
       <div className="mb-3">
         <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
-          Current Plan
+          {t('Current Plan')}
         </div>
         <div className="text-xs text-foreground">
-          Version {currentVersion} of {totalVersions}
+          {t('Version')} {currentVersion} of {totalVersions}
         </div>
       </div>
 
@@ -84,7 +86,7 @@ export const VersionBrowser: React.FC<VersionBrowserProps> = ({
           onClick={onActivatePlanDiff}
           className="w-full mb-3 px-3 py-1.5 text-xs font-medium rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20"
         >
-          Show Changes
+          {t('Show Changes')}
         </button>
       )}
 
@@ -92,12 +94,12 @@ export const VersionBrowser: React.FC<VersionBrowserProps> = ({
       {totalVersions > 1 && (
         <div className="mb-3">
           <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">
-            Compare Against
+            {t('Compare Against')}
           </div>
 
           {isLoading ? (
             <div className="text-xs text-muted-foreground py-2 text-center">
-              Loading...
+              {t('Loading...')}
             </div>
           ) : (
             <div className="space-y-0.5">
@@ -121,12 +123,12 @@ export const VersionBrowser: React.FC<VersionBrowserProps> = ({
                           v{v.version}
                           {v.version === currentVersion - 1 && (
                             <span className="ml-1 text-muted-foreground font-normal">
-                              (previous)
+                              {t('(previous)')}
                             </span>
                           )}
                         </span>
                         <span className="text-[10px] text-muted-foreground">
-                          {fetchingVersion === v.version ? "Loading..." : relativeTime(v.timestamp)}
+                          {fetchingVersion === v.version ? t('Loading...') : relativeTime(v.timestamp)}
                         </span>
                       </div>
                     </button>

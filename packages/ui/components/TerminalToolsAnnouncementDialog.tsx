@@ -1,3 +1,4 @@
+import { useTranslate } from './ReviewLanguage';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Pause, Play } from 'lucide-react';
@@ -152,6 +153,7 @@ interface DemoPlayerProps {
  * while playing, so a paused frame is never mistaken for a broken one.
  */
 function DemoPlayer({ demo, reducedMotion }: DemoPlayerProps) {
+  const t = useTranslate();
   const videoRef = useRef<HTMLVideoElement>(null);
   // Optimistic: autoplay is expected, so the corner control is the initial
   // shape and the centered Play only appears once the browser has proven it
@@ -227,7 +229,7 @@ function DemoPlayer({ demo, reducedMotion }: DemoPlayerProps) {
         <button
           type="button"
           onClick={toggle}
-          aria-label={playing ? 'Pause demo' : 'Play demo'}
+          aria-label={playing ? t('Pause demo') : t('Play demo')}
           data-terminal-tools-playback={playing ? 'pause' : 'play'}
           className={
             playing
@@ -306,6 +308,7 @@ export function TerminalToolsAnnouncementDialog({
   onDismiss,
   reducedMotion,
 }: TerminalToolsAnnouncementDialogProps) {
+  const t = useTranslate();
   const dismissRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const onDismissRef = useRef(onDismiss);
@@ -415,13 +418,13 @@ export function TerminalToolsAnnouncementDialog({
                 id="terminal-tools-announcement-title"
                 className="text-balance text-xl font-semibold tracking-tight sm:text-2xl"
               >
-                Plannotator TUI and Herdr Annotate
+                {t('Plannotator TUI and Herdr Annotate')}
               </h2>
               <p
                 id="terminal-tools-announcement-description"
                 className="mt-1 text-pretty text-sm leading-relaxed text-muted-foreground"
               >
-                Annotate Markdown and terminal text, then send the notes to your agent.
+                {t('Annotate Markdown and terminal text, then send the notes to your agent.')}
               </p>
             </div>
             <DemoSwitch active={activeDemo.id} onChange={setActiveDemoId} />
@@ -429,10 +432,10 @@ export function TerminalToolsAnnouncementDialog({
 
           <div className="mt-5 flex flex-wrap items-center gap-2">
             <OutboundAction href={TUI_REPO} icon={<GitHubMark className="size-4" />}>
-              Star plannotator-tui
+              {t('Star plannotator-tui')}
             </OutboundAction>
             <OutboundAction href={HERDR_REPO} icon={<GitHubMark className="size-4" />}>
-              Star herdr-annotate
+              {t('Star herdr-annotate')}
             </OutboundAction>
             <OutboundAction href={activeDemo.watchUrl} icon={<XMark className="size-3.5" />}>
               Watch on X
@@ -443,7 +446,7 @@ export function TerminalToolsAnnouncementDialog({
               onClick={onDismiss}
               className="ml-auto min-h-9 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground outline-none transition-opacity motion-reduce:transition-none hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card"
             >
-              Got it
+              {t('Got it')}
             </button>
           </div>
         </div>

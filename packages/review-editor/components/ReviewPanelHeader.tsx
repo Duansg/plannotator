@@ -1,3 +1,5 @@
+import { english, type Translate, type ReviewMessage } from '@plannotator/ui/utils/reviewLanguage';
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 /**
  * The top of the code review sidebar (approved design records
  * "review-sidebar-aligned" and, for the tabs and the sentence,
@@ -68,7 +70,7 @@ export interface ReviewPanelHeaderModel {
   searching?: boolean;
 }
 
-const VIEW_META: Record<ReviewPanelView, { label: string; title: string; Icon: React.FC<{ className?: string }> }> = {
+const VIEW_META: Record<ReviewPanelView, { label: ReviewMessage; title: ReviewMessage; Icon: React.FC<{ className?: string }> }> = {
   tree: { label: 'Tree', title: 'Tree view', Icon: FolderTree },
   commits: { label: 'Commits', title: 'Commit history: click a commit to review its diff', Icon: GitCommitHorizontal },
 };
@@ -162,7 +164,7 @@ export function ariaKeyShortcut(binding: string, mac: boolean = isMac): string {
 }
 
 /** The sentence's words for the active diff: a noun and, when a base applies, the word before it. */
-export function diffWords(model: Pick<ReviewPanelHeaderModel, 'view' | 'diff' | 'base'>): {
+export function diffWords(model: Pick<ReviewPanelHeaderModel, 'view' | 'diff' | 'base'>, t: Translate = english): {
   noun: string;
   connector: string | null;
 } {
@@ -170,20 +172,20 @@ export function diffWords(model: Pick<ReviewPanelHeaderModel, 'view' | 'diff' | 
   const option = model.diff?.options.find((o) => o.id === id);
   if (!model.base) {
     // No base in the sentence: the option's own words say everything.
-    if (id === 'since-base' && model.diff?.activeBase) return { noun: `All changes since ${displayRef(model.diff.activeBase)}`, connector: null };
-    return { noun: option?.label ?? 'Changes', connector: null };
+    if (id === 'since-base' && model.diff?.activeBase) return { noun: t('All changes since {base}', { base: displayRef(model.diff.activeBase) }), connector: null };
+    return { noun: option?.label ?? t('Changes'), connector: null };
   }
   switch (id) {
     case 'since-base':
-      return { noun: 'All changes', connector: 'since' };
+      return { noun: t('All changes'), connector: t('since') };
     case 'merge-base':
-      return { noun: 'Committed changes', connector: 'since' };
+      return { noun: t('Committed changes'), connector: t('since') };
     case 'branch':
-      return { noun: 'Branch diff', connector: 'against' };
+      return { noun: t('Branch diff'), connector: t('against') };
     case 'jj-line':
-      return { noun: option?.label ?? 'Line of work', connector: 'from' };
+      return { noun: option?.label ?? t('Line of work'), connector: t('from') };
     default:
-      return { noun: option?.label ?? 'Changes', connector: 'vs' };
+      return { noun: option?.label ?? t('Changes'), connector: t('vs') };
   }
 }
 
@@ -208,6 +210,7 @@ export function middleTruncateRef(base: string, width: number): string {
 
 
 const GoToFileButton: React.FC<{ onClick: () => void }> = ({ onClick }) => {
+  const t = useTranslate();
   const binding = resolveShortcutBindings(reviewExplorerShortcuts.shortcuts.goToFile)[0] ?? '';
   const keys = formatShortcutBindingTokens(binding);
   const label = keys.length > 0 ? `Go to file (${keys.join('')})` : 'Go to file';
@@ -216,7 +219,7 @@ const GoToFileButton: React.FC<{ onClick: () => void }> = ({ onClick }) => {
       <button
         type="button"
         onClick={onClick}
-        aria-label="Go to File…"
+        aria-label={t('Go to File…')}
         aria-keyshortcuts={binding ? ariaKeyShortcut(binding) : undefined}
         data-go-to-file-button=""
         className={`ml-auto -mr-1 h-6 w-6 flex flex-shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-[var(--sidebar-fill)] hover:text-foreground transition-colors ${FOCUS}`}
@@ -293,6 +296,7 @@ let pendingTabFocus: ReviewPanelView | null = null;
  * it belongs to the tab.
  */
 const ViewTabs: React.FC<{ model: ReviewPanelHeaderModel; views: ReviewPanelView[]; narrow: boolean; trailing?: React.ReactNode }> = ({ model, views, narrow, trailing }) => {
+  const t = useTranslate();
   const listRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     if (pendingTabFocus === null) return;
@@ -330,7 +334,7 @@ const ViewTabs: React.FC<{ model: ReviewPanelHeaderModel; views: ReviewPanelView
     <div
       ref={listRef}
       role="tablist"
-      aria-label="Panel view"
+      aria-label={t('Panel view')}
       data-panel-view-switch=""
       onKeyDown={onKeyDown}
       className="flex items-center gap-4"
@@ -346,21 +350,21 @@ const ViewTabs: React.FC<{ model: ReviewPanelHeaderModel; views: ReviewPanelView
             id={`review-panel-tab-${view}`}
             aria-selected={active}
             aria-controls={REVIEW_PANEL_BODY_ID}
-            aria-label={narrow ? meta.label : undefined}
+            aria-label={narrow ? t(meta.label) : undefined}
             tabIndex={active ? 0 : -1}
-            title={narrow ? undefined : meta.title}
+            title={narrow ? undefined : t(meta.title)}
             data-panel-view={view}
             onClick={() => choose(view)}
             className={`relative h-7 flex items-center rounded-sm text-[13px] font-medium whitespace-nowrap transition-colors ${FOCUS} ${
               active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            {narrow ? <meta.Icon className="w-3.5 h-3.5" aria-hidden="true" /> : meta.label}
+            {narrow ? <meta.Icon className="w-3.5 h-3.5" aria-hidden="true" /> : t(meta.label)}
             {active && <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-foreground" />}
           </button>
         );
         return narrow ? (
-          <Tooltip key={view} content={meta.label} side="bottom">
+          <Tooltip key={view} content={t(meta.label)} side="bottom">
             {tab}
           </Tooltip>
         ) : (
@@ -386,9 +390,10 @@ const ViewTabs: React.FC<{ model: ReviewPanelHeaderModel; views: ReviewPanelView
  * (`ScopeSwitch`, drawn by the panel through `PanelControlsRow`).
  */
 export const ReviewPanelHeader: React.FC<{ model: ReviewPanelHeaderModel; width: number }> = ({ model, width }) => {
+  const t = useTranslate();
   const narrow = width < NARROW_HEADER_WIDTH;
   const views = panelViews(model);
-  const { noun, connector } = diffWords(model);
+  const { noun, connector } = diffWords(model, t);
   const showSentence = model.view !== 'commits' && (!!model.diff || !!model.base);
   const goToFile = model.onGoToFile ? <GoToFileButton onClick={model.onGoToFile} /> : null;
   const token = `inline-flex min-w-0 max-w-full items-center gap-0.5 rounded px-1 -mx-0.5 py-0.5 min-h-6 font-medium text-foreground underline decoration-dotted decoration-muted-foreground/60 underline-offset-[3px] hover:bg-[var(--sidebar-fill)] hover:decoration-transparent transition-colors disabled:opacity-50 disabled:cursor-wait ${FOCUS}`;
@@ -400,7 +405,7 @@ export const ReviewPanelHeader: React.FC<{ model: ReviewPanelHeaderModel; width:
           <ViewTabs model={model} views={views} narrow={narrow} trailing={goToFile} />
         ) : (
           <div className="-mx-2 px-4 h-7 flex items-center shadow-[inset_0_-1px_0_var(--sidebar-line)]">
-            <span className="text-[13px] font-medium text-muted-foreground">Files</span>
+            <span className="text-[13px] font-medium text-muted-foreground">{t('Files')}</span>
             {goToFile}
           </div>
         )}
@@ -486,6 +491,7 @@ export function allPillDotNote(repo: ReadyRepo | null | undefined): string {
 }
 
 export const ScopeSwitch: React.FC<{ model: ReviewPanelHeaderModel; width: number; progress?: ScopeProgress }> = ({ model, width, progress }) => {
+  const t = useTranslate();
   const scope = shownScope(model);
   if (!scope || !model.scope) {
     if (!progress || !progressTitle(progress)) return null;
@@ -508,16 +514,16 @@ export const ScopeSwitch: React.FC<{ model: ReviewPanelHeaderModel; width: numbe
     }`;
   return (
     <div className="min-w-0" data-tree-scope-row="">
-      <div className="flex min-w-0 items-center" role="group" aria-label="Files shown in the tree" data-tree-scope-switch="">
+      <div className="flex min-w-0 items-center" role="group" aria-label={t('Files shown in the tree')} data-tree-scope-switch="">
         <button
           type="button"
           aria-pressed={scope === 'changes'}
           onClick={() => selectScope(model, 'changes')}
           data-tree-scope="changes"
-          title={progress && progressTitle(progress) ? `The files this review changes: ${progressTitle(progress)}` : 'The files this review changes'}
+          title={progress && progressTitle(progress) ? `The files this review changes: ${progressTitle(progress)}` : t('The files this review changes')}
           className={`flex-shrink-0 px-1.5 ${pill(scope === 'changes')}`}
         >
-          <span className={countOnly ? 'sr-only' : undefined}>Changes</span>
+          <span className={countOnly ? 'sr-only' : undefined}>{t('Changes')}</span>
           {progress?.showViewed ? (
             <span
               className={`tabular-nums text-[12px] font-normal ${progress.total > 0 && progress.viewed >= progress.total ? 'text-success' : 'text-muted-foreground'}`}
@@ -537,7 +543,7 @@ export const ScopeSwitch: React.FC<{ model: ReviewPanelHeaderModel; width: numbe
           title={`Every file of the repository at the revision the diff reads${all !== undefined ? ` (${formatCount(all)} files)` : ''}${allPillDotNote(scope === 'all' ? model.repo : null)}`}
           className={`relative flex-shrink-0 pl-1.5 pr-2.5 ${pill(scope === 'all')}`}
         >
-          <span data-tree-scope-label="">{shortAll ? <>All<span className="sr-only"> files</span></> : 'All files'}</span>
+          <span data-tree-scope-label="">{shortAll ? <>{t('All')}<span className="sr-only"> files</span></> : t('All files')}</span>
           {all !== undefined && <span className="sr-only">{formatCount(all)}</span>}
           {scope === 'all' && <LiveDot repo={model.repo} className="absolute top-1 right-1 flex" />}
         </button>

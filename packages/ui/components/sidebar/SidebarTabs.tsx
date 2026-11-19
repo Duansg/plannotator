@@ -1,3 +1,4 @@
+import { useTranslate } from '../ReviewLanguage';
 /**
  * SidebarTabs — Collapsed tab flags
  *
@@ -43,6 +44,7 @@ export const SidebarTabs: React.FC<SidebarTabsProps> = ({
   className,
   style,
 }) => {
+  const t = useTranslate();
   return (
     <div
       data-sidebar-tabs="true"
@@ -57,7 +59,7 @@ export const SidebarTabs: React.FC<SidebarTabsProps> = ({
               ? "text-primary"
               : "text-muted-foreground hover:text-foreground hover:bg-card"
           }`}
-          title={isAgentTerminalRunning ? "Agent running" : "Agent"}
+          title={isAgentTerminalRunning ? t('Agent running') : t('Agent')}
           aria-pressed={isAgentTerminalOpen}
         >
           <ReviewAgentsIcon className="w-3.5 h-3.5" />
@@ -71,7 +73,7 @@ export const SidebarTabs: React.FC<SidebarTabsProps> = ({
       <button
         onClick={() => onToggleTab("toc")}
         className="sidebar-tab-flag group flex items-center justify-center w-7 h-9 rounded-r-md border border-l-0 border-border/50 bg-card/80 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
-        title="Table of Contents"
+        title={t('Table of Contents')}
       >
         <svg
           className="w-3.5 h-3.5"
@@ -93,7 +95,7 @@ export const SidebarTabs: React.FC<SidebarTabsProps> = ({
         <button
           onClick={() => onToggleTab("versions")}
           className="sidebar-tab-flag group relative flex items-center justify-center w-7 h-9 rounded-r-md border border-l-0 border-border/50 bg-card/80 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
-          title="Plan Versions"
+          title={t('Plan Versions')}
         >
           <svg
             className="w-3.5 h-3.5"
@@ -119,7 +121,7 @@ export const SidebarTabs: React.FC<SidebarTabsProps> = ({
         <button
           onClick={() => onToggleTab("messages")}
           className="sidebar-tab-flag group relative flex items-center justify-center w-7 h-9 rounded-r-md border border-l-0 border-border/50 bg-card/80 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
-          title="Pick a different message"
+          title={t('Pick a different message')}
         >
           <MessagesIcon />
           {hasMessageAnnotations && (
@@ -133,7 +135,7 @@ export const SidebarTabs: React.FC<SidebarTabsProps> = ({
         <button
           onClick={() => onToggleTab("files")}
           className="sidebar-tab-flag group relative flex items-center justify-center w-7 h-9 rounded-r-md border border-l-0 border-border/50 bg-card/80 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
-          title="File Browser"
+          title={t('File Browser')}
         >
           <svg
             className="w-3.5 h-3.5"

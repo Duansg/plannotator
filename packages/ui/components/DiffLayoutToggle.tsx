@@ -1,3 +1,4 @@
+import { useTranslate } from './ReviewLanguage';
 /**
  * Split / Unified as one button (approval "diff-controls-headers": "One
  * button, like DiffsHub"). The mark shows the layout on screen; a click
@@ -51,6 +52,7 @@ export const DiffLayoutToggle = React.forwardRef<HTMLButtonElement, DiffLayoutTo
   { value, onChange, nativeTitle = true, splitTooNarrow = false, onClick, className, ...rest },
   ref,
 ) {
+  const t = useTranslate();
   const next: DiffLayout = value === 'split' ? 'unified' : 'split';
   const tooNarrow = splitTooNarrow && value === 'split';
   return (
@@ -63,7 +65,7 @@ export const DiffLayoutToggle = React.forwardRef<HTMLButtonElement, DiffLayoutTo
         onClick?.(event);
         if (!event.defaultPrevented) onChange(next);
       }}
-      aria-label={tooNarrow ? SPLIT_TOO_NARROW_TIP : next === 'unified' ? 'Switch to Unified view' : 'Switch to Split view'}
+      aria-label={tooNarrow ? SPLIT_TOO_NARROW_TIP : next === 'unified' ? t('Switch to Unified view') : t('Switch to Split view')}
       title={nativeTitle ? (tooNarrow ? SPLIT_TOO_NARROW_TIP : diffLayoutToggleTip(value)) : undefined}
       data-diff-layout-toggle={value}
       data-split-too-narrow={tooNarrow || undefined}

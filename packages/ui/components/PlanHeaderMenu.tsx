@@ -1,3 +1,4 @@
+import { useTranslate } from './ReviewLanguage';
 import React from 'react';
 import {
   ActionMenu,
@@ -75,6 +76,7 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
   compactSessionActions = [],
   compactDocumentActions = [],
 }) => {
+  const t = useTranslate();
   const { theme, setTheme } = useTheme();
 
   const showUpdateDot = !!updateInfo?.updateAvailable && !updateInfo.dismissed;
@@ -103,13 +105,13 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
               ? 'bg-muted text-foreground'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted'
           }`}
-          title="Options"
-          aria-label="Options"
+          title={t('Options')}
+          aria-label={t('Options')}
           aria-expanded={isOpen}
         >
           {isOpen ? <CloseIcon /> : <MenuIcon />}
           {/* The dot says an update is out; the label never moves (no shimmer). */}
-          <span className="hidden md:inline">Options</span>
+          <span className="hidden md:inline">{t('Options')}</span>
           {showUpdateDot && (
             <span className="absolute top-0.5 right-0.5 md:-top-0.5 md:-right-0.5 w-2 h-2 rounded-full bg-primary ring-2 ring-background" />
           )}
@@ -121,7 +123,7 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
           {compactTouchLayout && compactSessionActions.length > 0 && (
             <>
               <CompactActionSection
-                label="Review"
+                label={t('Review')}
                 actions={compactSessionActions}
                 closeMenu={closeMenu}
               />
@@ -132,7 +134,7 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
           {compactTouchLayout && compactDocumentActions.length > 0 && (
             <>
               <CompactActionSection
-                label="Document"
+                label={t('Document')}
                 actions={compactDocumentActions}
                 closeMenu={closeMenu}
               />
@@ -141,7 +143,7 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
           )}
 
           <div className="px-3 py-2 space-y-1.5">
-            <ActionMenuSectionLabel>Theme</ActionMenuSectionLabel>
+            <ActionMenuSectionLabel>{t('Theme')}</ActionMenuSectionLabel>
             <div className="flex items-center gap-1 rounded-lg bg-muted/50 p-0.5">
               {THEME_MODES.map(({ id, label, Icon }) => (
                 <button
@@ -158,7 +160,7 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
                   }`}
                 >
                   <Icon />
-                  <span>{label}</span>
+                  <span>{t(label)}</span>
                 </button>
               ))}
             </div>
@@ -172,7 +174,7 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
               onOpenSettings();
             }}
             icon={<SettingsIcon />}
-            label="Settings"
+            label={t('Settings')}
           />
           <ActionMenuItem
             onClick={() => {
@@ -180,7 +182,7 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
               onOpenExport();
             }}
             icon={<ExportIcon />}
-            label="Export"
+            label={t('Export')}
           />
           {agentInstructionsEnabled && (
             <ActionMenuItem
@@ -189,8 +191,8 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
                 onCopyAgentInstructions();
               }}
               icon={<ReviewAgentsIcon />}
-              label="Agent Instructions"
-              subtitle="Copy agent instructions for external annotations"
+              label={t('Agent Instructions')}
+              subtitle={t('Copy agent instructions for external annotations')}
             />
           )}
 
@@ -202,7 +204,7 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
               onDownloadAnnotations();
             }}
             icon={<DownloadIcon />}
-            label="Download Annotations"
+            label={t('Download Annotations')}
           />
           <ActionMenuItem
             onClick={() => {
@@ -210,8 +212,8 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
               onPrint();
             }}
             icon={<PrintIcon />}
-            label="Print / Save as PDF"
-            subtitle="Choose 'Save as PDF' in the print dialog"
+            label={t('Print / Save as PDF')}
+            subtitle={t("Choose 'Save as PDF' in the print dialog")}
           />
           {sharingEnabled && (
             <ActionMenuItem
@@ -220,7 +222,7 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
                 onCopyShareLink();
               }}
               icon={<LinkIcon />}
-              label="Copy Share Link"
+              label={t('Copy Share Link')}
             />
           )}
           {sharingEnabled && (
@@ -230,7 +232,7 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
                 onOpenImport();
               }}
               icon={<ImportIcon />}
-              label="Import Review"
+              label={t('Import Review')}
             />
           )}
 
@@ -244,7 +246,7 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
                     onSaveToObsidian();
                   }}
                   icon={<NoteIcon />}
-                  label="Save to Obsidian"
+                  label={t('Save to Obsidian')}
                 />
               )}
               {bearConfigured && (
@@ -254,7 +256,7 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
                     onSaveToBear();
                   }}
                   icon={<NoteIcon />}
-                  label="Save to Bear"
+                  label={t('Save to Bear')}
                 />
               )}
               {octarineConfigured && (
@@ -264,7 +266,7 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
                     onSaveToOctarine();
                   }}
                   icon={<NoteIcon />}
-                  label="Save to Octarine"
+                  label={t('Save to Octarine')}
                 />
               )}
               {notionConfigured && onSaveToNotion && (
@@ -274,7 +276,7 @@ export const PlanHeaderMenu: React.FC<PlanHeaderMenuProps> = ({
                     onSaveToNotion();
                   }}
                   icon={<NoteIcon />}
-                  label="Save to Notion"
+                  label={t('Save to Notion')}
                 />
               )}
             </>

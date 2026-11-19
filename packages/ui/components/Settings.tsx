@@ -98,6 +98,8 @@ import { KeyboardShortcuts } from './KeyboardShortcuts';
 import { ThemeTab } from './ThemeTab';
 import { modKey, modKeyWord } from '../utils/platform';
 import { getAIProviderSettings, resolveAIProviderSelection } from '../utils/aiProvider';
+import { isCommentSubmitKey } from '../utils/commentSubmitKey';
+import { ReviewLanguageField, useTranslate } from './ReviewLanguage';
 import { AISettingsTab } from './AISettingsTab';
 import { HooksTab } from './settings/HooksTab';
 import { QuickLabelsTab } from './settings/QuickLabelsTab';
@@ -410,10 +412,11 @@ function VimSettingsTab({
   onVimHudChange,
   onVimHudKeyPanelChange,
 }: VimSettingsTabProps) {
+  const t = useTranslate();
   return (
     <div className="space-y-5">
       <div>
-        <div className="text-sm font-semibold">Vim mode</div>
+        <div className="text-sm font-semibold">{t('Vim mode')}</div>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
           Navigate, select, and annotate the rendered document without reaching for the mouse.
         </p>
@@ -475,12 +478,13 @@ function VimSettingsTab({
 }
 
 function ReviewAnalysisTab({ packageChangesSetting }: { packageChangesSetting?: PackageChangesSetting }) {
+  const t = useTranslate();
   const semanticDiffEnabled = useConfigValue('semanticDiffEnabled');
   const callFlowEnabled = useConfigValue('callFlowEnabled');
   return (
     <div className="space-y-5">
       <div>
-        <div className="text-sm font-semibold">Analysis layers</div>
+        <div className="text-sm font-semibold">{t('Analysis layers')}</div>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
           Add structural context to the ordinary code diff. Each layer is independent and does no work while disabled.
         </p>
@@ -490,14 +494,14 @@ function ReviewAnalysisTab({ packageChangesSetting }: { packageChangesSetting?: 
         <AnalysisLayerToggle
           checked={semanticDiffEnabled}
           onChange={(enabled) => configStore.set('semanticDiffEnabled', enabled)}
-          label="Semantic changes"
+          label={t('Semantic changes')}
           description="Organize added, changed, moved, and removed functions, classes, and other named code. Enabled by default."
         />
         <div className="border-t border-border" />
         <AnalysisLayerToggle
           checked={callFlowEnabled}
           onChange={(enabled) => configStore.set('callFlowEnabled', enabled)}
-          label="Call flow"
+          label={t('Call flow')}
           description="Diffs for function call stacks across git commits. 22 languages supported (AST-based, built using Tree-sitter)."
         />
         {packageChangesSetting && (
@@ -506,7 +510,7 @@ function ReviewAnalysisTab({ packageChangesSetting }: { packageChangesSetting?: 
             <AnalysisLayerToggle
               checked={packageChangesSetting.card}
               onChange={(on) => packageChangesSetting.setCard(on)}
-              label="Package changes"
+              label={t('Package changes')}
               description="Added, removed and changed dependencies above package.json and lockfile diffs."
             />
             <div className="border-t border-border" />
@@ -593,6 +597,7 @@ function DefaultDiffChoices<T extends string>({ options, value, onChange }: {
 const REVIEW_SECTION_HEADING = 'text-xs font-semibold uppercase tracking-wider text-muted-foreground';
 
 const ReviewTab: React.FC<{ sinceBaseUnavailable?: boolean }> = ({ sinceBaseUnavailable }) => {
+  const t = useTranslate();
   const defaultDiffType = useConfigValue('defaultDiffType');
   useConfigValue('reviewDefaults');
   const jjDefaultDiffType = getProviderReviewDefaultDiffType(JJ_REVIEW_DEFAULTS);
@@ -601,14 +606,14 @@ const ReviewTab: React.FC<{ sinceBaseUnavailable?: boolean }> = ({ sinceBaseUnav
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <div className={REVIEW_SECTION_HEADING}>Viewed files</div>
+        <div className={REVIEW_SECTION_HEADING}>{t('Viewed files')}</div>
         {/* Never write `reviewAutoViewed` directly — setReviewAutoViewed also
             consumes the first-time notice, since an explicit toggle is proof
             the reviewer already found the switch. */}
         <ToggleSwitch
           checked={reviewAutoViewed}
           onChange={(v) => setReviewAutoViewed(v)}
-          label="Auto-mark viewed"
+          label={t('Auto-mark viewed')}
           description="Mark a file viewed when you scroll past it or move on to another file. Files you un-view stay un-viewed, and files that change on refresh become un-viewed."
         />
       </div>
@@ -619,8 +624,8 @@ const ReviewTab: React.FC<{ sinceBaseUnavailable?: boolean }> = ({ sinceBaseUnav
         <div id="settings-review-git" className={REVIEW_SECTION_HEADING}>Git</div>
         <div className="space-y-2">
           <div>
-            <div className="text-sm font-medium">Default file grouping</div>
-            <div className="text-xs text-muted-foreground">How the file tree groups a code review's files when it opens</div>
+            <div className="text-sm font-medium">{t('Default file grouping')}</div>
+            <div className="text-xs text-muted-foreground">{t("How the file tree groups a code review's files when it opens")}</div>
             {/* This is a GLOBAL preference — never hide the options because the
                 CURRENT repo can't serve them; just say so. Without this note,
                 picking Git status on a repo whose base ref doesn't resolve
@@ -646,8 +651,8 @@ const ReviewTab: React.FC<{ sinceBaseUnavailable?: boolean }> = ({ sinceBaseUnav
         </div>
         <div className="space-y-2">
           <div>
-            <div className="text-sm font-medium">Default diff view</div>
-            <div className="text-xs text-muted-foreground">Which changes to show when you open a code review</div>
+            <div className="text-sm font-medium">{t('Default diff view')}</div>
+            <div className="text-xs text-muted-foreground">{t('Which changes to show when you open a code review')}</div>
           </div>
           {/* Coupling (sections ⟺ since-base) lives in the shared setter —
               never write the pair by hand (see config/reviewView). */}
@@ -665,7 +670,7 @@ const ReviewTab: React.FC<{ sinceBaseUnavailable?: boolean }> = ({ sinceBaseUnav
         <div id="settings-review-jj" className={REVIEW_SECTION_HEADING}>Jujutsu</div>
         <div className="space-y-2">
           <div>
-            <div className="text-sm font-medium">Default diff view</div>
+            <div className="text-sm font-medium">{t('Default diff view')}</div>
             <div className="text-xs text-muted-foreground">Which changes to show when you open a review in a Jujutsu repository</div>
           </div>
           {/* Its own saved value: Git modes mean nothing in a jj repo, and jj has
@@ -712,6 +717,7 @@ const FontFamilyField: React.FC<{
   loadFont?: (value: string) => void;
   previewClassName?: string;
 }> = ({ label, description, value, onSave, options, previewStack, previewText, customAriaLabel, customPlaceholder, notFoundText, loadFont, previewClassName = '' }) => {
+  const t = useTranslate();
   const isBuiltIn = (v: string) => options.some((opt) => opt.value === v);
   // Custom font: progressive disclosure. customFontMode keeps the input open
   // while the user picks "Custom…" or has a non-built-in font saved.
@@ -801,7 +807,7 @@ const FontFamilyField: React.FC<{
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}
-        <option value={CUSTOM_FONT_SENTINEL}>Custom…</option>
+        <option value={CUSTOM_FONT_SENTINEL}>{t('Custom…')}</option>
       </select>
       {customActive && (
         <div className="space-y-1">
@@ -864,6 +870,7 @@ const ExperimentalTab: React.FC = () => {
 };
 
 const ReviewDisplayTab: React.FC<{ isCompactTouchLayout?: boolean }> = ({ isCompactTouchLayout = false }) => {
+  const t = useTranslate();
   const diffFontFamily = useConfigValue('diffFontFamily');
   const diffFontSize = useConfigValue('diffFontSize');
   const tokenHoverTrigger = useConfigValue('tokenHoverTrigger');
@@ -879,7 +886,7 @@ const ReviewDisplayTab: React.FC<{ isCompactTouchLayout?: boolean }> = ({ isComp
           nor Off answers. */}
       <div className="space-y-3">
         <div>
-          <div className="text-sm font-medium">Hover cards</div>
+          <div className="text-sm font-medium">{t('Hover cards')}</div>
           <div className="text-xs text-muted-foreground">
             Rest the pointer on a symbol in a diff to see where it is defined and who
             references it. Needs ripgrep and a local checkout; nothing appears when the
@@ -908,8 +915,8 @@ const ReviewDisplayTab: React.FC<{ isCompactTouchLayout?: boolean }> = ({ isComp
 
       {/* Font Family */}
       <FontFamilyField
-        label="Code Font"
-        description="Font family for diff code lines"
+        label={t('Code Font')}
+        description={t('Font family for diff code lines')}
         value={diffFontFamily}
         onSave={(v) => configStore.set('diffFontFamily', v)}
         options={DIFF_FONT_OPTIONS}
@@ -928,11 +935,11 @@ const ReviewDisplayTab: React.FC<{ isCompactTouchLayout?: boolean }> = ({ isComp
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-sm font-medium">Code Font Size</div>
-            <div className="text-xs text-muted-foreground">Font size for diff code lines</div>
+            <div className="text-sm font-medium">{t('Code Font Size')}</div>
+            <div className="text-xs text-muted-foreground">{t('Font size for diff code lines')}</div>
           </div>
           <div className="text-xs tabular-nums text-muted-foreground min-w-[4ch] text-right">
-            {normalizeCssFontSize(diffFontSize) || 'Auto'}
+            {normalizeCssFontSize(diffFontSize) || t('Auto')}
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -950,7 +957,7 @@ const ReviewDisplayTab: React.FC<{ isCompactTouchLayout?: boolean }> = ({ isComp
               onClick={() => configStore.set('diffFontSize', '')}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              Reset
+              {t('Reset')}
             </button>
           )}
         </div>
@@ -961,7 +968,7 @@ const ReviewDisplayTab: React.FC<{ isCompactTouchLayout?: boolean }> = ({ isComp
       {isCompactTouchLayout ? (
         <div className="space-y-2" data-settings-diff-display="">
           <div>
-            <div className="text-sm font-medium">Diff display</div>
+            <div className="text-sm font-medium">{t('Diff display')}</div>
             <div className="text-xs text-muted-foreground">
               This layout shows unified diffs for the session; your desktop preference is unchanged.
             </div>
@@ -970,7 +977,7 @@ const ReviewDisplayTab: React.FC<{ isCompactTouchLayout?: boolean }> = ({ isComp
         </div>
       ) : (
         <div className="space-y-1" data-settings-diff-display="">
-          <div className="text-sm font-medium">Diff display</div>
+          <div className="text-sm font-medium">{t('Diff display')}</div>
           <div className="text-xs text-muted-foreground">
             Split or Unified is the button next to the gear above the diff. The gear holds the rest: wrap, line numbers,
             backgrounds, change marks, changed words, tab size, whole file and hide whitespace.
@@ -1021,6 +1028,7 @@ function parseCCLabels(json: string | null): CCLabelConfig[] {
 }
 
 const CommentsTab: React.FC = () => {
+  const t = useTranslate();
   const conventionalComments = useConfigValue('conventionalComments');
   const labelsJson = useConfigValue('conventionalLabels');
   const [labels, setLabels] = useState(() => parseCCLabels(labelsJson));
@@ -1060,8 +1068,8 @@ const CommentsTab: React.FC = () => {
       <ToggleSwitch
         checked={conventionalComments}
         onChange={(v) => configStore.set('conventionalComments', v)}
-        label="Conventional Comments"
-        description="Add structured labels to review comments"
+        label={t('Conventional Comments')}
+        description={t('Add structured labels to review comments')}
       />
 
       <div className={`space-y-4 transition-opacity ${conventionalComments ? '' : 'opacity-40 pointer-events-none'}`}>
@@ -1071,7 +1079,7 @@ const CommentsTab: React.FC = () => {
       {/* How it works */}
       <div className="space-y-3">
         <div>
-          <div className="text-sm font-medium">How it works</div>
+          <div className="text-sm font-medium">{t('How it works')}</div>
           <div className="text-xs text-muted-foreground leading-relaxed mt-1">
             When enabled, a label picker appears above the comment input when annotating code.
             Labels classify your feedback intent, making it clear whether a comment is a blocking issue,
@@ -1087,14 +1095,14 @@ const CommentsTab: React.FC = () => {
             rel="noopener noreferrer"
             className="text-primary hover:underline"
           >
-            Conventional Comments
+            {t('Conventional Comments')}
           </a>
           {' '}spec. Comments are exported as plain text, readable on GitHub, and parseable by tooling.
         </div>
 
         {/* Example output */}
         <div className="rounded-md border border-border bg-muted/30 p-3 space-y-1.5">
-          <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Example output</div>
+          <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{t('Example output')}</div>
           <div className="font-mono text-[11px] text-foreground/80 leading-relaxed">
             <span className="font-bold">issue</span> <span className="text-muted-foreground">(blocking)</span>: This will throw if user is null — the guard was removed in the refactor.
           </div>
@@ -1106,9 +1114,9 @@ const CommentsTab: React.FC = () => {
       {/* Label editor */}
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-sm font-medium">Labels</div>
+          <div className="text-sm font-medium">{t('Labels')}</div>
           <div className="text-xs text-muted-foreground">
-            Customize labels and their default severity
+            {t('Customize labels and their default severity')}
           </div>
         </div>
         {!isDefault && (
@@ -1116,14 +1124,14 @@ const CommentsTab: React.FC = () => {
             onClick={resetToDefaults}
             className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
           >
-            Reset to defaults
+            {t('Reset to defaults')}
           </button>
         )}
       </div>
 
       {/* Column headers */}
       <div className="flex items-end gap-2 px-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">
-        <span className="flex-1">Label</span>
+        <span className="flex-1">{t('Label')}</span>
         <span className="w-20 text-center">Blocking decorator</span>
         <span className="w-6" />
       </div>
@@ -1162,7 +1170,7 @@ const CommentsTab: React.FC = () => {
             <button
               onClick={() => removeLabel(index)}
               className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors flex-shrink-0"
-              title="Remove label"
+              title={t('Remove label')}
             >
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -1177,7 +1185,7 @@ const CommentsTab: React.FC = () => {
           onClick={addLabel}
           className="w-full py-1.5 text-xs text-muted-foreground hover:text-foreground border border-dashed border-border rounded-lg hover:border-foreground/30 transition-colors"
         >
-          + Add label
+          {t('+ Add label')}
         </button>
       )}
 
@@ -1187,6 +1195,7 @@ const CommentsTab: React.FC = () => {
 };
 
 export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange, onIdentityChange, origin, mode = 'plan', annotateParity = false, onUIPreferencesChange, onPermissionModeChange, externalOpen, externalTab, onExternalClose, aiProviders = [], gitUser, autoUpdateSetting, updateCheckSetting, cookieHostSetting, packageChangesSetting, agentToolSetting, onAgentToolChange, sinceBaseUnavailable, isCompactTouchLayout = false, onDetectObsidianVaults, agentTerminalAvailable = false, webmcpAvailable = false, hideEnterSavesComment = false, hideRepoOwnerSetting = false, showDocumentTextSize = false, showDocumentFont = false }) => {
+  const t = useTranslate();
   const webmcpTools = useWebMcpToolsEnabled();
   const autoUpdate = useConfigValue('autoUpdate');
   const updateChecksOn = updateCheckSetting ? updateCheckSetting.on : true;
@@ -1261,47 +1270,49 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
   // Fetch available agents for OpenCode
   const { agents: availableAgents, validateAgent, getAgentWarning } = useAgents(origin ?? null, agentSurface);
 
+  const permissionModeDescription = PERMISSION_MODE_OPTIONS.find(o => o.value === permissionMode)?.description;
+  const autoCloseDelayDescription = AUTO_CLOSE_OPTIONS.find(o => o.value === autoCloseDelay)?.description;
   const mainTabs = useMemo(() => {
-    const t: { id: SettingsTab; label: string }[] = [{ id: 'general', label: 'General' }];
-    t.push({ id: 'theme', label: 'Theme' });
+    const tabs: { id: SettingsTab; label: string }[] = [{ id: 'general', label: t('General') }];
+    tabs.push({ id: 'theme', label: t('Theme') });
     // Annotate renders the same document viewer as plan review, so the
     // document-level tabs apply there too. Only rows that describe a plan
     // decision (plan snapshots, plan-arrival auto-save, plan-time hooks,
     // post-approval permission mode / agent switch) stay plan-only.
     if (mode === 'plan' || annotateDocumentTabs) {
-      t.push({ id: 'display', label: 'Display' });
-      t.push({ id: 'saving', label: 'Saving' });
-      t.push({ id: 'labels', label: 'Labels' });
+      tabs.push({ id: 'display', label: t('Display') });
+      tabs.push({ id: 'saving', label: t('Saving') });
+      tabs.push({ id: 'labels', label: t('Labels') });
     }
     if (mode === 'review') {
-      t.push({ id: 'review', label: 'Review' });
-      t.push({ id: 'display', label: 'Editor' });
-      t.push({ id: 'semantic', label: 'Semantic diffs' });
-      t.push({ id: 'analysis', label: 'Analysis' });
-      t.push({ id: 'comments', label: 'Comments' });
+      tabs.push({ id: 'review', label: t('Review') });
+      tabs.push({ id: 'display', label: t('Editor') });
+      tabs.push({ id: 'semantic', label: t('Semantic diffs') });
+      tabs.push({ id: 'analysis', label: t('Analysis') });
+      tabs.push({ id: 'comments', label: t('Comments') });
       if (aiProviders.length > 0) {
-        t.push({ id: 'ai', label: 'AI' });
+        tabs.push({ id: 'ai', label: 'AI' });
       }
     }
     if (mode !== 'review') {
-      t.push({ id: 'vim', label: 'Vim' });
+      tabs.push({ id: 'vim', label: 'Vim' });
     }
-    t.push({ id: 'shortcuts', label: 'Shortcuts' });
+    tabs.push({ id: 'shortcuts', label: t('Shortcuts') });
     if (mode === 'plan') {
-      t.push({ id: 'hooks', label: 'Hooks' });
+      tabs.push({ id: 'hooks', label: t('Hooks') });
     }
-    return t;
-  }, [mode, annotateDocumentTabs, aiProviders.length]);
+    return tabs;
+  }, [mode, annotateDocumentTabs, aiProviders.length, t]);
 
   const integrationTabs: { id: SettingsTab; label: string }[] = [
-    { id: 'files', label: 'Files' },
+    { id: 'files', label: t('Files') },
     ...(mode === 'plan' || annotateDocumentTabs
       ? [{ id: 'obsidian' as SettingsTab, label: 'Obsidian' }, { id: 'bear' as SettingsTab, label: 'Bear' }, { id: 'octarine' as SettingsTab, label: 'Octarine' }, ...(isNotionAvailable() ? [{ id: 'notion' as SettingsTab, label: 'Notion' }] : [])]
       : []),
   ];
   // Experimental is the last tab, on its own below the integrations (the owner,
   // 2026-10-27). Only where it has a setting: code review's Edit Code to Suggest.
-  const experimentalTabs: { id: SettingsTab; label: string }[] = mode === 'review' ? [{ id: 'experimental', label: 'Experimental' }] : [];
+  const experimentalTabs: { id: SettingsTab; label: string }[] = mode === 'review' ? [{ id: 'experimental', label: t('Experimental') }] : [];
   const obsidianDefaultSaveAvailable = obsidian.enabled && getEffectiveVaultPath(obsidian).trim().length > 0;
   const bearDefaultSaveAvailable = bear.enabled;
   const octarineDefaultSaveAvailable = octarine.enabled && octarine.workspace.trim().length > 0;
@@ -1489,7 +1500,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
       <button
         onClick={() => setShowDialog(true)}
         className="relative p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-        title="Settings"
+        title={t('Settings')}
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -1517,10 +1528,10 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
           >
             {taterMode && <TaterSpritePullup />}
             <div className="flex items-center justify-between p-4 border-b border-border">
-              <h3 id="plannotator-settings-title" className="font-semibold text-sm">Settings</h3>
+              <h3 id="plannotator-settings-title" className="font-semibold text-sm">{t('Settings')}</h3>
               <button
                 type="button"
-                aria-label="Close settings"
+                aria-label={t('Close settings')}
                 onClick={() => setShowDialog(false)}
                 className="p-1.5 rounded-md bg-muted hover:bg-muted/80 text-foreground transition-colors"
               >
@@ -1569,7 +1580,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                   <>
                     <div className="mx-2 my-2 border-t border-border/50" />
                     <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-                      Integrations
+                      {t('Integrations')}
                     </div>
                     <div className="space-y-0.5">
                       {integrationTabs.map(tab => (
@@ -1617,11 +1628,12 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                 {/* === GENERAL TAB === */}
                 {activeTab === 'general' && (
                   <>
+                    <ReviewLanguageField />
                     {/* Identity */}
                     <div className="space-y-2">
-                      <div className="text-sm font-medium">Your Identity</div>
+                      <div className="text-sm font-medium">{t('Your Identity')}</div>
                       <div className="text-xs text-muted-foreground">
-                        Used when sharing annotations with others
+                        {t('Used when sharing annotations with others')}
                       </div>
                       <div className="flex items-center gap-2">
                         {identityEditable ? (
@@ -1631,13 +1643,13 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                             defaultValue={identity}
                             onBlur={(e) => handleIdentitySave(e.target.value)}
                             onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
+                              if (isCommentSubmitKey(e, true)) {
                                 handleIdentitySave((e.target as HTMLInputElement).value);
                                 (e.target as HTMLInputElement).blur();
                               }
                             }}
                             className="flex-1 px-3 py-2 bg-muted rounded-lg text-xs font-mono truncate border border-transparent focus:border-primary/50 focus:outline-none transition-colors"
-                            placeholder="Enter your name..."
+                            placeholder={t('Enter your name...')}
                           />
                         ) : (
                           <div className="flex-1 px-3 py-2 bg-muted rounded-lg text-xs font-mono truncate border border-transparent">
@@ -1649,7 +1661,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                             onClick={handleUseGitName}
                             onMouseDown={(e) => e.preventDefault()}
                             className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
-                            title={`Use git identity: ${gitUser}`}
+                            title={t('Use git identity: {name}', { name: gitUser })}
                           >
                             <GitUser className="w-5 h-5" />
                           </button>
@@ -1659,7 +1671,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                             onClick={handleRegenerateIdentity}
                             onMouseDown={(e) => e.preventDefault()}
                             className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
-                            title="Regenerate random identity"
+                            title={t('Regenerate random identity')}
                           >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -1678,8 +1690,8 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                           <ToggleSwitch
                             checked={enterSavesComment}
                             onChange={(v) => configStore.set('enterSavesComment', v)}
-                            label="Enter saves a comment"
-                            description={`Shift+Enter adds a new line. ${modKeyWord}+Enter still saves.`}
+                            label={t('Enter saves a comment')}
+                            description={t('Shift+Enter adds a new line. {mod}+Enter still saves.', { mod: modKeyWord })}
                           />
                         </div>
                       </>
@@ -1694,8 +1706,8 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                           <ToggleSwitch
                             checked={hideRepoOwner}
                             onChange={(v) => configStore.set('hideRepoOwner', v)}
-                            label="Hide the repository owner"
-                            description="When on, documents, code review and tab titles name the repository without its owner. Hover the name to see the owner."
+                            label={t('Hide the repository owner')}
+                            description={t('When on, documents, code review and tab titles name the repository without its owner. Hover the name to see the owner.')}
                           />
                         </div>
                       </>
@@ -1710,11 +1722,11 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                           checked={updateChecksOn}
                           onChange={(v) => updateCheckSetting.onChange(v)}
                           disabled={updateCheckSetting.env !== undefined}
-                          label="Tell me when a new version is out"
+                          label={t('Tell me when a new version is out')}
                           description={
                             updateCheckSetting.env !== undefined
-                              ? 'Set by PLANNOTATOR_UPDATE_CHECK in your environment.'
-                              : 'This computer asks GitHub every few minutes, never your browser. Off makes no request at all.'
+                              ? t('Set by PLANNOTATOR_UPDATE_CHECK in your environment.')
+                              : t('This computer asks GitHub every few minutes, never your browser. Off makes no request at all.')
                           }
                         />
                       </>
@@ -1730,13 +1742,13 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                           checked={(autoUpdateSetting.env ?? autoUpdate) && updateChecksOn}
                           onChange={(v) => configStore.set('autoUpdate', v)}
                           disabled={autoUpdateSetting.env !== undefined || !updateChecksOn}
-                          label="Keep Plannotator up to date"
+                          label={t('Keep Plannotator up to date')}
                           description={
                             autoUpdateSetting.env !== undefined
-                              ? 'Set by PLANNOTATOR_AUTO_UPDATE in your environment.'
+                              ? t('Set by PLANNOTATOR_AUTO_UPDATE in your environment.')
                               : !updateChecksOn
-                                ? 'Needs update checks (above).'
-                                : 'Installs new releases in the background, at most once a day, never while another review is open.'
+                                ? t('Needs update checks (above).')
+                                : t('Installs new releases in the background, at most once a day, never while another review is open.')
                           }
                         />
                       </>
@@ -1754,7 +1766,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                             checked={cookieHostSetting.on}
                             onChange={(v) => cookieHostSetting.onChange(v)}
                             disabled={cookieHostSetting.env !== undefined || cookieHostSetting.urlHost !== undefined}
-                            label="Open Plannotator at plannotator.localhost"
+                            label={t('Open Plannotator at plannotator.localhost')}
                             description={cookieHostDescription(cookieHostSetting)}
                           />
                           {cookieHostSetting.error && (
@@ -1784,15 +1796,15 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                         <div className="border-t border-border" />
                         <div className="flex items-center justify-between" data-webmcp-setting="true">
                           <div>
-                            <div className="text-sm font-medium">Agent tools</div>
+                            <div className="text-sm font-medium">{t('Agent tools')}</div>
                             <div className="text-xs text-muted-foreground">
-                              Let your browser's agent read this document and leave comments. Approving and sending feedback stay yours.
+                              {t("Let your browser's agent read this document and leave comments. Approving and sending feedback stay yours.")}
                             </div>
                           </div>
                           <button
                             role="switch"
                             aria-checked={webmcpTools}
-                            aria-label="Agent tools"
+                            aria-label={t('Agent tools')}
                             onClick={() => setWebMcpToolsEnabled(!webmcpTools)}
                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                               webmcpTools ? 'bg-primary' : 'bg-muted'
@@ -1814,9 +1826,9 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                         <div className="border-t border-border" />
                         <div className="space-y-2">
                           <div>
-                            <div className="text-sm font-medium">Permission Mode</div>
+                            <div className="text-sm font-medium">{t('Permission Mode')}</div>
                             <div className="text-xs text-muted-foreground">
-                              Automation level after plan approval
+                              {t('Automation level after plan approval')}
                             </div>
                           </div>
                           <select
@@ -1826,12 +1838,12 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                           >
                             {PERMISSION_MODE_OPTIONS.map((option) => (
                               <option key={option.value} value={option.value}>
-                                {option.label}
+                                {t(option.label)}
                               </option>
                             ))}
                           </select>
                           <div className="text-[10px] text-muted-foreground/70">
-                            {PERMISSION_MODE_OPTIONS.find(o => o.value === permissionMode)?.description}
+                            {permissionModeDescription && t(permissionModeDescription)}
                           </div>
                         </div>
                       </>
@@ -1844,9 +1856,9 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                         <div className="border-t border-border" />
                         <div className="space-y-2">
                           <div>
-                            <div className="text-sm font-medium">Agent Switching</div>
+                            <div className="text-sm font-medium">{t('Agent Switching')}</div>
                             <div className="text-xs text-muted-foreground">
-                              Which agent to switch to after plan approval
+                              {t('Which agent to switch to after plan approval')}
                             </div>
                           </div>
 
@@ -1881,8 +1893,8 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                                     {a.name}
                                   </option>
                                 ))}
-                                <option value="custom">Custom</option>
-                                <option value="disabled">Disabled</option>
+                                <option value="custom">{t('Custom')}</option>
+                                <option value="disabled">{t('Disabled')}</option>
                               </>
                             ) : (
                               AGENT_OPTIONS.map((option) => (
@@ -1909,7 +1921,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                                   setAgentWarning(null);
                                 }
                               }}
-                              placeholder="Enter agent name..."
+                              placeholder={t('Enter agent name...')}
                               className="w-full px-3 py-2 bg-muted rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground/50"
                             />
                           )}
@@ -1917,7 +1929,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                             {agent.switchTo === 'custom' && agent.customName
                               ? `Switch to "${agent.customName}" agent after approval`
                               : agent.switchTo === 'disabled'
-                                ? 'Stay on current agent after approval'
+                                ? t('Stay on current agent after approval')
                                 : `Switch to ${agent.switchTo} agent after approval`}
                           </div>
                         </div>
@@ -1936,9 +1948,9 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                         <div className="border-t border-border" />
                         <div className="space-y-2">
                           <div>
-                            <div className="text-sm font-medium">Agent TUI Position</div>
+                            <div className="text-sm font-medium">{t('Agent TUI Position')}</div>
                             <div className="text-xs text-muted-foreground">
-                              Which side the agent terminal docks on, or Hidden to keep it out of the layout
+                              {t('Which side the agent terminal docks on, or Hidden to keep it out of the layout')}
                             </div>
                           </div>
                           <SegmentedControl
@@ -1948,7 +1960,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                           />
                           {agentTerminalSide === 'hidden' && (
                             <div className="text-[10px] text-muted-foreground/70">
-                              You can still open it for this session from the sidebar rail.
+                              {t('You can still open it for this session from the sidebar rail.')}
                             </div>
                           )}
                         </div>
@@ -1959,7 +1971,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
 
                     {/* Auto-close Tab */}
                     <div className="space-y-2">
-                      <div className="text-sm font-medium">Auto-close Tab</div>
+                      <div className="text-sm font-medium">{t('Auto-close Tab')}</div>
                       <select
                         value={autoCloseDelay}
                         onChange={(e) => {
@@ -1971,12 +1983,12 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                       >
                         {AUTO_CLOSE_OPTIONS.map((option) => (
                           <option key={option.value} value={option.value}>
-                            {option.label}
+                            {t(option.label)}
                           </option>
                         ))}
                       </select>
                       <div className="text-[10px] text-muted-foreground/70">
-                        {AUTO_CLOSE_OPTIONS.find(o => o.value === autoCloseDelay)?.description}
+                        {autoCloseDelayDescription && t(autoCloseDelayDescription)}
                       </div>
                     </div>
                   </>
@@ -2009,9 +2021,9 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                     {showDocumentTextSize && (<>
                     <div className="space-y-3" data-document-text-size-setting>
                       <div>
-                        <div className="text-sm font-medium" id="document-text-size-label">Text size</div>
+                        <div className="text-sm font-medium" id="document-text-size-label">{t('Text size')}</div>
                         <div className="text-xs text-muted-foreground">
-                          {mode === 'annotate' ? 'Body text of the document' : 'Body text of the plan'}, in px ({DEFAULT_DOCUMENT_TEXT_SIZE} is the default)
+                          {mode === 'annotate' ? t('Body text of the document') : t('Body text of the plan')}, in px ({DEFAULT_DOCUMENT_TEXT_SIZE} is the default)
                         </div>
                       </div>
                       <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5" role="group" aria-labelledby="document-text-size-label">
@@ -2039,7 +2051,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                     {showDocumentFont && (<>
                     <div data-document-font-setting>
                       <FontFamilyField
-                        label="Document font"
+                        label={t('Document font')}
                         description={`${mode === 'annotate' ? 'Text of the document' : 'Text of the plan'}; code keeps its monospace font`}
                         value={documentFontFamily}
                         onSave={(v) => configStore.set('documentFontFamily', v)}
@@ -2058,7 +2070,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                     {showDocumentTextSize && (<>
                     <div className="flex items-center justify-between" data-document-source-line-numbers-setting>
                       <div>
-                        <div className="text-sm font-medium">Source line numbers</div>
+                        <div className="text-sm font-medium">{t('Source line numbers')}</div>
                         <div className="text-xs text-muted-foreground">
                           Each block&apos;s source lines beside the {mode === 'annotate' ? 'document' : 'plan'}
                         </div>
@@ -2066,7 +2078,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                       <button
                         type="button"
                         role="switch"
-                        aria-label="Source line numbers"
+                        aria-label={t('Source line numbers')}
                         aria-checked={documentSourceLineNumbers}
                         onClick={() => configStore.set('documentSourceLineNumbers', !documentSourceLineNumbers)}
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
@@ -2087,9 +2099,9 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                     {/* Auto-open Sidebar */}
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium">Auto-open Sidebar</div>
+                        <div className="text-sm font-medium">{t('Auto-open Sidebar')}</div>
                         <div className="text-xs text-muted-foreground">
-                          Open sidebar with Table of Contents on load
+                          {t('Open sidebar with Table of Contents on load')}
                         </div>
                       </div>
                       <button
@@ -2113,9 +2125,9 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                     {/* Sticky Actions */}
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium">Sticky Actions</div>
+                        <div className="text-sm font-medium">{t('Sticky Actions')}</div>
                         <div className="text-xs text-muted-foreground">
-                          Keep action buttons visible while scrolling
+                          {t('Keep action buttons visible while scrolling')}
                         </div>
                       </div>
                       <button
@@ -2139,10 +2151,10 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                     {/* Grid Background */}
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium">Grid Background</div>
-                        <div className="text-xs text-muted-foreground">Show the plan as a floating card on a grid</div>
+                        <div className="text-sm font-medium">{t('Grid Background')}</div>
+                        <div className="text-xs text-muted-foreground">{t('Show the plan as a floating card on a grid')}</div>
                       </div>
-                      <button role="switch" aria-checked={gridEnabled} aria-label="Grid Background"
+                      <button role="switch" aria-checked={gridEnabled} aria-label={t('Grid Background')}
                         onClick={() => {
                           configStore.set('gridEnabled', !gridEnabled);
                           // A Settings flip is a real choice: keep it across reloads.
@@ -2158,9 +2170,9 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                     {/* Diagram Shadow */}
                     <div className="space-y-3" data-diagram-shadow-setting>
                       <div>
-                        <div className="text-sm font-medium">Diagram Shadow</div>
+                        <div className="text-sm font-medium">{t('Diagram Shadow')}</div>
                         <div className="text-xs text-muted-foreground">
-                          Drop shadow under diagram nodes (100 = Mermaid's own)
+                          {t("Drop shadow under diagram nodes (100 = Mermaid's own)")}
                         </div>
                       </div>
                       <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
@@ -2175,7 +2187,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                                 : 'text-muted-foreground hover:text-foreground'
                             }`}
                           >
-                            {value === 0 ? 'None' : String(value)}
+                            {value === 0 ? t('None') : String(value)}
                           </button>
                         ))}
                       </div>
@@ -2186,9 +2198,9 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                     {/* Plan Width */}
                     <div className="space-y-3">
                       <div>
-                        <div className="text-sm font-medium flex items-center gap-2">{mode === 'annotate' ? 'Document Width' : 'Plan Width'}</div>
+                        <div className="text-sm font-medium flex items-center gap-2">{mode === 'annotate' ? t('Document Width') : t('Plan Width')}</div>
                         <div className="text-xs text-muted-foreground">
-                          {mode === 'annotate' ? 'Maximum width of the document card' : 'Maximum width of the plan card'}
+                          {mode === 'annotate' ? t('Maximum width of the document card') : t('Maximum width of the plan card')}
                         </div>
                       </div>
                       <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
@@ -2318,9 +2330,9 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-sm font-medium">Save Plans</div>
+                          <div className="text-sm font-medium">{t('Save Plans')}</div>
                           <div className="text-xs text-muted-foreground">
-                            Auto-save plans to the default data directory
+                            {t('Auto-save plans to the default data directory')}
                           </div>
                         </div>
                         <button
@@ -2341,16 +2353,16 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
 
                       {planSave.enabled && (
                         <div className="space-y-1.5 pl-0.5">
-                          <label className="text-xs text-muted-foreground">Custom Path (optional)</label>
+                          <label className="text-xs text-muted-foreground">{t('Custom Path (optional)')}</label>
                           <input
                             type="text"
                             value={planSave.customPath || ''}
                             onChange={(e) => handlePlanSaveChange({ customPath: e.target.value || null })}
-                            placeholder="Leave empty for default"
+                            placeholder={t('Leave empty for default')}
                             className="w-full px-3 py-2 bg-muted rounded-lg text-xs font-mono placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
                           />
                           <div className="text-[10px] text-muted-foreground/70">
-                            Leave empty to use default location
+                            {t('Leave empty to use default location')}
                           </div>
                         </div>
                       )}
@@ -2362,7 +2374,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                     {/* Default Notes App */}
                     <div className="space-y-2">
                       <div>
-                        <div className="text-sm font-medium">Default Save Action</div>
+                        <div className="text-sm font-medium">{t('Default Save Action')}</div>
                         <div className="text-xs text-muted-foreground">
                           Used for keyboard shortcut ({modKey}+S)
                         </div>
@@ -2372,8 +2384,8 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                         onChange={(e) => handleDefaultNotesAppChange(e.target.value as DefaultNotesApp)}
                         className="w-full px-3 py-2 bg-muted rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 cursor-pointer"
                       >
-                        <option value="ask">Ask each time</option>
-                        <option value="download">Download Annotations</option>
+                        <option value="ask">{t('Ask each time')}</option>
+                        <option value="download">{t('Download Annotations')}</option>
                         {obsidianDefaultSaveAvailable && <option value="obsidian">Obsidian</option>}
                         {bearDefaultSaveAvailable && <option value="bear">Bear</option>}
                         {octarineDefaultSaveAvailable && <option value="octarine">Octarine</option>}
@@ -2381,7 +2393,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                       </select>
                       <div className="text-[10px] text-muted-foreground/70">
                         {defaultNotesApp === 'ask'
-                          ? 'Opens Export dialog with Notes tab'
+                          ? t('Opens Export dialog with Notes tab')
                           : defaultNotesApp === 'download'
                             ? `${modKey}+S downloads the annotations file`
                             : `${modKey}+S saves directly to ${{ obsidian: 'Obsidian', bear: 'Bear', octarine: 'Octarine', notion: 'Notion' }[defaultNotesApp] ?? defaultNotesApp}`}
@@ -2393,7 +2405,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                     {/* Integration links */}
                     <div className="space-y-2">
                       <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-                        Integrations
+                        {t('Integrations')}
                       </div>
                       <button
                         onClick={() => setActiveTab('obsidian')}
@@ -2402,7 +2414,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                         <span className="text-foreground">Obsidian</span>
                         <span className="flex items-center gap-2">
                           <span className={`text-[10px] font-medium ${obsidian.enabled ? 'text-primary' : 'text-muted-foreground/50'}`}>
-                            {obsidian.enabled ? 'Enabled' : 'Off'}
+                            {obsidian.enabled ? t('Enabled') : t('Off')}
                           </span>
                           <svg className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -2416,7 +2428,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                         <span className="text-foreground">Bear Notes</span>
                         <span className="flex items-center gap-2">
                           <span className={`text-[10px] font-medium ${bear.enabled ? 'text-primary' : 'text-muted-foreground/50'}`}>
-                            {bear.enabled ? 'Enabled' : 'Off'}
+                            {bear.enabled ? t('Enabled') : t('Off')}
                           </span>
                           <svg className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -2430,7 +2442,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                         <span className="text-foreground">Octarine</span>
                         <span className="flex items-center gap-2">
                           <span className={`text-[10px] font-medium ${octarine.enabled ? 'text-primary' : 'text-muted-foreground/50'}`}>
-                            {octarine.enabled ? 'Enabled' : 'Off'}
+                            {octarine.enabled ? t('Enabled') : t('Off')}
                           </span>
                           <svg className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -2482,9 +2494,9 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                   <>
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium">File Browser</div>
+                        <div className="text-sm font-medium">{t('File Browser')}</div>
                         <div className="text-xs text-muted-foreground">
-                          Your project files are shown automatically. Add extra directories below.
+                          {t('Your project files are shown automatically. Add extra directories below.')}
                         </div>
                       </div>
                       <button
@@ -2510,7 +2522,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                         {/* Directory list */}
                         {fileBrowserSettings.directories.length > 0 && (
                           <div className="space-y-1">
-                            <label className="text-xs text-muted-foreground">Directories</label>
+                            <label className="text-xs text-muted-foreground">{t('Directories')}</label>
                             {fileBrowserSettings.directories.map((dir) => (
                               <div key={dir} className="flex items-center gap-2 group">
                                 <div className="flex-1 px-3 py-2 bg-muted rounded-lg text-xs font-mono truncate" title={dir}>
@@ -2521,7 +2533,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                                     directories: fileBrowserSettings.directories.filter((d) => d !== dir),
                                   })}
                                   className="p-1.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100"
-                                  title="Remove directory"
+                                  title={t('Remove directory')}
                                 >
                                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -2534,7 +2546,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
 
                         {/* Add directory */}
                         <div className="space-y-1.5">
-                          <label className="text-xs text-muted-foreground">Add Directory</label>
+                          <label className="text-xs text-muted-foreground">{t('Add Directory')}</label>
                           <div className="flex gap-2">
                             <input
                               type="text"
@@ -2551,11 +2563,11 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                               disabled={!newDirPath.trim()}
                               className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
                             >
-                              Add
+                              {t('Add')}
                             </button>
                           </div>
                           <div className="text-[10px] text-muted-foreground/70">
-                            Add directories outside your project that contain markdown files.
+                            {t('Add directories outside your project that contain markdown files.')}
                           </div>
                         </div>
                       </>
@@ -2616,7 +2628,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                                         {basenameFromPath(vault)}
                                       </option>
                                     ))}
-                                    <option value={CUSTOM_PATH_SENTINEL}>Custom path...</option>
+                                    <option value={CUSTOM_PATH_SENTINEL}>{t('Custom path...')}</option>
                                   </select>
                                   {obsidian.vaultPath === CUSTOM_PATH_SENTINEL && (
                                     <input
@@ -2640,7 +2652,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                             </div>
 
                             <div className="w-44 space-y-1.5">
-                              <label className="text-xs text-muted-foreground">Folder</label>
+                              <label className="text-xs text-muted-foreground">{t('Folder')}</label>
                               <input
                                 type="text"
                                 value={obsidian.folder}
@@ -2892,7 +2904,7 @@ tags: [${mode === 'annotate' ? 'plannotator' : 'plan'}, ...]
                           </div>
                         </div>
                         <div className="space-y-1.5 pl-0.5">
-                          <label className="text-xs text-muted-foreground">Folder</label>
+                          <label className="text-xs text-muted-foreground">{t('Folder')}</label>
                           <input
                             type="text"
                             value={octarine.folder}
@@ -3024,12 +3036,12 @@ tags: [${mode === 'annotate' ? 'plannotator' : 'plan'}, ...]
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-border flex-shrink-0">
-              <span className="text-xs font-medium text-muted-foreground">Theme Preview</span>
+              <span className="text-xs font-medium text-muted-foreground">{t('Theme Preview')}</span>
               <button
                 onClick={() => { setThemePreview(false); setShowDialog(true); }}
                 className="px-2.5 py-1 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
               >
-                Done
+                {t('Done')}
               </button>
             </div>
             <div className="p-3 overflow-y-auto flex-1 min-h-0">

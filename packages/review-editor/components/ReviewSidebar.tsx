@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import { ReviewSidebarTabs, REVIEW_SIDEBAR_BODY_ID } from './ReviewSidebarTabs';
 import { PanelEmptyState } from './PanelEmptyState';
 import React, { useRef, useState } from 'react';
@@ -126,6 +127,7 @@ interface ReviewSidebarProps {
 }
 
 const SuggestionPreview: React.FC<{ code: string; originalCode?: string; language?: string }> = ({ code, originalCode, language }) => {
+  const t = useTranslate();
   const diffStats = originalCode ? {
     removed: originalCode.split('\n').length,
     added: code.split('\n').length,
@@ -137,7 +139,7 @@ const SuggestionPreview: React.FC<{ code: string; originalCode?: string; languag
         <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
         </svg>
-        Suggestion
+        {t('Suggestion')}
         {diffStats && (
           <span className="ml-auto text-xs font-mono">
             <span style={{ color: 'var(--success)' }}>+{diffStats.added}</span>
@@ -181,6 +183,7 @@ const GeneralCommentComposer: React.FC<{
   panelWidth?: number;
   touchTarget?: boolean;
 }> = ({ onAdd, open, onOpenChange, text, onTextChange, align, panelWidth, touchTarget }) => {
+  const t = useTranslate();
   const ref = useRef<HTMLDivElement>(null);
   useDismissablePopover({ enabled: open, ref, onDismiss: () => onOpenChange(false) });
   const enterSavesComment = useConfigValue('enterSavesComment');
@@ -216,10 +219,10 @@ const GeneralCommentComposer: React.FC<{
         onClick={() => onOpenChange(!open)}
         aria-expanded={open}
         aria-haspopup="dialog"
-        title="Add global comment"
+        title={t('Add global comment')}
         className="inline-flex items-center whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
-        + Global comment
+        {t('+ Global comment')}
       </button>
       {open && (
         <div
@@ -233,12 +236,12 @@ const GeneralCommentComposer: React.FC<{
             onTextChange={onTextChange}
             onSubmit={submit}
             onCancel={() => onOpenChange(false)}
-            placeholder="Add a global comment..."
+            placeholder={t('Add a global comment...')}
             enterSubmits={enterSavesComment}
           />
           <div className="mt-2 flex items-center justify-end gap-2">
-            <Button size="xs" data-general-comment-add onClick={submit} title="Add the comment to this review">
-              Add comment
+            <Button size="xs" data-general-comment-add onClick={submit} title={t('Add the comment to this review')}>
+              {t('Add comment')}
             </Button>
           </div>
         </div>
@@ -331,6 +334,7 @@ export const ReviewSidebar: React.FC<ReviewSidebarProps> = /* React.memo */({
   guideLaunchable,
   canOpenGuideJob,
 }) => {
+  const t = useTranslate();
   const totalCount = annotations.length + (editorAnnotations?.length ?? 0) + (descriptionAnnotations?.length ?? 0) + (commentAnnotations?.length ?? 0);
   const [copied, setCopied] = useState(false);
   // General-comment composer state lives HERE, not in GeneralCommentComposer:
@@ -475,7 +479,7 @@ export const ReviewSidebar: React.FC<ReviewSidebarProps> = /* React.memo */({
                     className="ml-1.5 font-sans text-xs px-1.5 py-0.5 rounded font-medium bg-muted text-muted-foreground"
                     title="The code changed after this comment was written; its line numbers refer to an earlier version"
                   >
-                    Outdated
+                    {t('Outdated')}
                   </span>
                 )}
                 {annotation.outsideDiff && (
@@ -506,7 +510,7 @@ export const ReviewSidebar: React.FC<ReviewSidebarProps> = /* React.memo */({
           <div className="mt-1" onClick={(e) => e.stopPropagation()}>
             <textarea
               autoFocus
-              aria-label="Edit comment"
+              aria-label={t('Edit comment')}
               value={editingOutdated.draft}
               onChange={(e) => setEditingOutdated({ id: annotation.id, draft: e.target.value })}
               onKeyDown={(e) => {
@@ -517,10 +521,10 @@ export const ReviewSidebar: React.FC<ReviewSidebarProps> = /* React.memo */({
             />
             <div className="mt-1 flex items-center justify-end gap-2">
               <button className="text-xs px-2 py-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted" onClick={() => setEditingOutdated(null)}>
-                Cancel
+                {t('Cancel')}
               </button>
               <button className="text-xs px-2 py-1 rounded bg-primary/15 text-primary hover:bg-primary/25" onClick={saveOutdatedEdit}>
-                Save
+                {t('Save')}
               </button>
             </div>
           </div>
@@ -638,7 +642,7 @@ export const ReviewSidebar: React.FC<ReviewSidebarProps> = /* React.memo */({
     <aside
       data-pn-review-transient-overlay={presentation === 'overlay' || undefined}
       role={presentation === 'overlay' ? 'dialog' : undefined}
-      aria-label={presentation === 'overlay' ? 'Review sidebar' : undefined}
+      aria-label={presentation === 'overlay' ? t('Review sidebar') : undefined}
       className={presentation === 'overlay'
         ? 'absolute inset-0 z-40 flex min-w-0 flex-col bg-background'
         : 'border-l border-border bg-card/30 flex flex-col flex-shrink-0 min-w-0 overflow-hidden'
@@ -655,9 +659,9 @@ export const ReviewSidebar: React.FC<ReviewSidebarProps> = /* React.memo */({
               active={activeTab}
               onSelect={(tab) => onSelectTab?.(tab)}
               tabs={[
-                { id: 'annotations', label: 'Comments', count: totalCount },
+                { id: 'annotations', label: t('Comments'), count: totalCount },
                 ...(aiAvailable ? [{ id: 'ai' as const, label: 'AI', attention: aiMessages.length > 0 }] : []),
-                ...(agentCapabilities?.available ? [{ id: 'agents' as const, label: 'Agents', count: agentJobs?.length ?? 0, attention: (agentJobs ?? []).some((job) => job.status === 'running' || job.status === 'starting') }] : []),
+                ...(agentCapabilities?.available ? [{ id: 'agents' as const, label: t('Agents'), count: agentJobs?.length ?? 0, attention: (agentJobs ?? []).some((job) => job.status === 'running' || job.status === 'starting') }] : []),
                 ...extraTabs.map(({ id, label, title, count, attention }) => ({ id, label, title, count, attention })),
               ]}
             />
@@ -669,7 +673,7 @@ export const ReviewSidebar: React.FC<ReviewSidebarProps> = /* React.memo */({
                 type="button"
                 onClick={onClose}
                 className="ml-auto inline-flex shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-                aria-label="Close review sidebar"
+                aria-label={t('Close review sidebar')}
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.25}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -687,7 +691,7 @@ export const ReviewSidebar: React.FC<ReviewSidebarProps> = /* React.memo */({
               {totalCount === 0 ? (
                 <PanelEmptyState>
                   <p>
-                    {presentation === 'overlay' ? 'No comments yet. Tap a line to comment on it.' : 'No comments yet. Click a line, or drag across lines, to comment on them.'}
+                    {presentation === 'overlay' ? t('No comments yet. Tap a line to comment on it.') : t('No comments yet. Click a line, or drag across lines, to comment on them.')}
                   </p>
                   {onAddGeneralComment && (
                     <div className="mt-2">
@@ -712,7 +716,7 @@ export const ReviewSidebar: React.FC<ReviewSidebarProps> = /* React.memo */({
                           anchored composer popover is never painted under a
                           later section's header. */}
                       <div className="sticky top-0 z-[25] bg-background/95 backdrop-blur-sm px-2 py-1 flex items-center justify-between gap-2">
-                        <span className="flex-none whitespace-nowrap text-xs font-medium text-muted-foreground">Global comments</span>
+                        <span className="flex-none whitespace-nowrap text-xs font-medium text-muted-foreground">{t('Global comments')}</span>
                         {onAddGeneralComment && (
                           <GeneralCommentComposer
                             onAdd={onAddGeneralComment}
@@ -779,7 +783,7 @@ export const ReviewSidebar: React.FC<ReviewSidebarProps> = /* React.memo */({
                   {annotations.length > 0 && (
                     <div className="flex items-center gap-2 pt-2 pb-1">
                       <div className="flex-1 border-t border-border/30" />
-                      <span className="text-xs font-semibold text-muted-foreground/60">Editor</span>
+                      <span className="text-xs font-semibold text-muted-foreground/60">{t('Editor')}</span>
                       <div className="flex-1 border-t border-border/30" />
                     </div>
                   )}
@@ -800,7 +804,7 @@ export const ReviewSidebar: React.FC<ReviewSidebarProps> = /* React.memo */({
                   {(annotations.length > 0 || (editorAnnotations?.length ?? 0) > 0) && (
                     <div className="flex items-center gap-2 pt-2 pb-1">
                       <div className="flex-1 border-t border-border/30" />
-                      <span className="text-xs font-semibold text-muted-foreground/60">PR description</span>
+                      <span className="text-xs font-semibold text-muted-foreground/60">{t('PR description')}</span>
                       <div className="flex-1 border-t border-border/30" />
                     </div>
                   )}
@@ -816,7 +820,7 @@ export const ReviewSidebar: React.FC<ReviewSidebarProps> = /* React.memo */({
                   {(annotations.length > 0 || (editorAnnotations?.length ?? 0) > 0 || (descriptionAnnotations?.length ?? 0) > 0) && (
                     <div className="flex items-center gap-2 pt-2 pb-1">
                       <div className="flex-1 border-t border-border/30" />
-                      <span className="text-xs font-semibold text-muted-foreground/60">PR comments</span>
+                      <span className="text-xs font-semibold text-muted-foreground/60">{t('PR comments')}</span>
                       <div className="flex-1 border-t border-border/30" />
                     </div>
                   )}
@@ -887,14 +891,14 @@ export const ReviewSidebar: React.FC<ReviewSidebarProps> = /* React.memo */({
                   <svg className="w-3.5 h-3.5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
-                  Copied
+                  {t('Copied')}
                 </>
               ) : (
                 <>
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
-                  Copy Feedback
+                  {t('Copy Feedback')}
                 </>
               )}
             </button>

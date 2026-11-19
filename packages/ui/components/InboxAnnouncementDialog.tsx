@@ -1,3 +1,4 @@
+import { useTranslate } from './ReviewLanguage';
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Play } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from './ui/dialog';
@@ -55,6 +56,7 @@ interface InboxAnnouncementDialogProps {
 }
 
 function Film() {
+  const t = useTranslate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [started, setStarted] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -75,7 +77,7 @@ function Film() {
         controls={started}
         playsInline
         preload="none"
-        aria-label="The Plannotator Inbox film"
+        aria-label={t('The Plannotator Inbox film')}
         // A source that cannot be fetched errors on <source>; a file that was
         // fetched but cannot be decoded errors on the element itself.
         onError={() => setFailed(true)}
@@ -89,13 +91,13 @@ function Film() {
           data-inbox-film-unavailable
           className="absolute inset-0 grid place-items-center bg-background/75 px-6 text-center text-sm text-muted-foreground backdrop-blur-sm"
         >
-          The film could not load. It is also on the Inbox page.
+          {t('The film could not load. It is also on the Inbox page.')}
         </p>
       ) : !started ? (
         <button
           type="button"
           onClick={play}
-          aria-label="Play the Inbox film"
+          aria-label={t('Play the Inbox film')}
           data-inbox-film-play
           className="group absolute inset-0 grid place-items-center outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
         >
@@ -109,6 +111,7 @@ function Film() {
 }
 
 export function InboxAnnouncementDialog({ isOpen, onDismiss }: InboxAnnouncementDialogProps) {
+  const t = useTranslate();
   const closeRef = useRef<HTMLButtonElement>(null);
   const onDismissRef = useRef(onDismiss);
 
@@ -160,11 +163,10 @@ export function InboxAnnouncementDialog({ isOpen, onDismiss }: InboxAnnouncement
         <div className="flex min-h-0 flex-col gap-5 overflow-y-auto px-5 py-5 sm:flex-row sm:items-end sm:justify-between sm:gap-8 sm:px-7 sm:py-6">
           <div className="min-w-0">
             <DialogTitle className="text-balance text-xl font-semibold tracking-tight sm:text-2xl">
-              The Plannotator Inbox
+              {t('The Plannotator Inbox')}
             </DialogTitle>
             <DialogDescription className="mt-1.5 max-w-xl text-pretty leading-relaxed">
-              Questions, blockers and reviews from your agents arrive in one inbox while they work,
-              and your answers go back to them.
+              {t('Questions, blockers and reviews from your agents arrive in one inbox while they work, and your answers go back to them.')}
             </DialogDescription>
           </div>
 
@@ -176,7 +178,7 @@ export function InboxAnnouncementDialog({ isOpen, onDismiss }: InboxAnnouncement
               onClick={() => onDismissRef.current()}
               className="min-h-10 rounded-lg border border-border px-4 text-sm font-medium text-foreground outline-none transition-colors motion-reduce:transition-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card"
             >
-              Close
+              {t('Close')}
             </button>
             <a
               href={INBOX_PAGE_URL}
@@ -191,7 +193,7 @@ export function InboxAnnouncementDialog({ isOpen, onDismiss }: InboxAnnouncement
               }}
               className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground outline-none transition-opacity motion-reduce:transition-none hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card"
             >
-              Learn about the Inbox
+              {t('Learn about the Inbox')}
               <ArrowUpRight className="size-4" aria-hidden="true" />
             </a>
           </div>

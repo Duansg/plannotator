@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import React from 'react';
 import type { CompactPlanAction } from '@plannotator/ui/components/PlanHeaderMenu';
 
@@ -68,6 +69,7 @@ export const CompactPlanReview: React.FC<CompactPlanReviewProps> = ({
   onOpenAnnotations,
   onOpenAI,
 }) => {
+  const t = useTranslate();
   const orderedActions = [...actions].sort((left, right) => {
     if (left.id === primaryActionId) return -1;
     if (right.id === primaryActionId) return 1;
@@ -80,7 +82,7 @@ export const CompactPlanReview: React.FC<CompactPlanReviewProps> = ({
     <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5">
       <div className="mx-auto flex w-full max-w-xl flex-col gap-6">
         <section aria-labelledby="pn-compact-review-summary-title">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Feedback</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{t('Feedback')}</p>
           <h2 id="pn-compact-review-summary-title" className="mt-2 text-xl font-semibold tracking-tight text-foreground">
             {feedbackSummary}
           </h2>
@@ -91,7 +93,7 @@ export const CompactPlanReview: React.FC<CompactPlanReviewProps> = ({
               onClick={onOpenAnnotations}
               className="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-border bg-background/40 px-4 py-3 text-left text-sm font-medium text-foreground outline-none transition-colors active:bg-muted focus-visible:ring-2 focus-visible:ring-ring/60"
             >
-              <span>Review annotations</span>
+              <span>{t('Review annotations')}</span>
               <CommentIcon />
             </button>
             {onOpenAI && (
@@ -101,7 +103,7 @@ export const CompactPlanReview: React.FC<CompactPlanReviewProps> = ({
                 onClick={onOpenAI}
                 className="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-border bg-background/40 px-4 py-3 text-left text-sm font-medium text-foreground outline-none transition-colors active:bg-muted focus-visible:ring-2 focus-visible:ring-ring/60"
               >
-                <span>Ask AI</span>
+                <span>{t('Ask AI')}</span>
                 <SparklesIcon />
               </button>
             )}
@@ -110,7 +112,7 @@ export const CompactPlanReview: React.FC<CompactPlanReviewProps> = ({
 
         <section aria-labelledby="pn-compact-review-decision-title">
           <h2 id="pn-compact-review-decision-title" className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            Decision
+            {t('Decision')}
           </h2>
           <div className="mt-2 flex flex-col gap-2">
             {orderedActions.map((action) => {

@@ -1,3 +1,4 @@
+import { useTranslate } from './ReviewLanguage';
 /**
  * Import Modal for loading teammate annotations from a share URL
  */
@@ -18,6 +19,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
   onImport,
   shareBaseUrl,
 }) => {
+  const t = useTranslate();
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
@@ -68,7 +70,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
         {/* Header */}
         <div className="p-4 border-b border-border">
           <div className="flex justify-between items-center">
-            <h3 className="font-semibold text-sm">Import Teammate Review</h3>
+            <h3 className="font-semibold text-sm">{t('Import Teammate Review')}</h3>
             <button
               onClick={handleClose}
               className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
@@ -84,7 +86,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
         <div className="p-4 space-y-4">
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-2">
-              Plannotator Share Link
+              {t('Plannotator Share Link')}
             </label>
             <input
               type="text"
@@ -99,7 +101,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Paste a share link from a teammate to import their annotations into the current plan review.
+            {t('Paste a share link from a teammate to import their annotations into the current plan review.')}
           </p>
 
           {/* Result feedback */}
@@ -112,13 +114,13 @@ export const ImportModal: React.FC<ImportModalProps> = ({
                 : 'bg-destructive/10 text-destructive'
             }`}>
               {result.success && result.count > 0 && (
-                <span>Imported {result.count} annotation{result.count !== 1 ? 's' : ''} from "{result.planTitle}"</span>
+                <span>{t('Imported')} {result.count} annotation{result.count !== 1 ? 's' : ''} from "{result.planTitle}"</span>
               )}
               {result.success && result.count === 0 && (
-                <span>{result.error || 'No new annotations to import (all already exist)'}</span>
+                <span>{result.error || t('No new annotations to import (all already exist)')}</span>
               )}
               {!result.success && (
-                <span>{result.error || 'Failed to import'}</span>
+                <span>{result.error || t('Failed to import')}</span>
               )}
             </div>
           )}
@@ -130,14 +132,14 @@ export const ImportModal: React.FC<ImportModalProps> = ({
             onClick={handleClose}
             className="px-3 py-1.5 rounded-md text-xs font-medium bg-muted hover:bg-muted/80 transition-colors"
           >
-            Cancel
+            {t('Cancel')}
           </button>
           <button
             onClick={handleImport}
             disabled={!url.trim() || loading}
             className="px-3 py-1.5 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Importing...' : 'Import'}
+            {loading ? t('Importing...') : t('Import')}
           </button>
         </div>
       </div>

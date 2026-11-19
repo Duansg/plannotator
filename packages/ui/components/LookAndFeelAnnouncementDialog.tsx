@@ -1,4 +1,6 @@
 /// <reference path="../globals.d.ts" />
+import { useTranslate } from './ReviewLanguage';
+import type { ReviewMessage } from '../utils/reviewLanguage';
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import lookGridImg from '../assets/look-grid.png';
@@ -25,8 +27,8 @@ const LOOK_OPTIONS: {
   /** gridEnabled value this option selects. */
   value: boolean;
   img: string;
-  title: string;
-  desc: string;
+  title: ReviewMessage;
+  desc: ReviewMessage;
 }[] = [
   {
     key: 'grid',
@@ -56,6 +58,7 @@ export const LookAndFeelAnnouncementDialog: React.FC<LookAndFeelAnnouncementDial
   onDismiss,
   variant = 'first-run',
 }) => {
+  const t = useTranslate();
   const dialogRef = useRef<HTMLDivElement>(null);
   const continueRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -137,20 +140,20 @@ export const LookAndFeelAnnouncementDialog: React.FC<LookAndFeelAnnouncementDial
             id="plan-look-choice-title"
             className="text-balance text-xl font-semibold tracking-tight sm:text-2xl"
           >
-            {variant === 'moved' ? 'Plans now open in Clean' : 'Choose how plans look'}
+            {variant === 'moved' ? t('Plans now open in Clean') : t('Choose how plans look')}
           </h2>
           <p
             id="plan-look-choice-description"
             className="mt-1 text-sm leading-relaxed text-muted-foreground"
           >
             {variant === 'moved'
-              ? "Grid is one switch away in Settings, or pick it here."
-              : "Pick a starting view. You can change it anytime in Settings."}
+              ? t('Grid is one switch away in Settings, or pick it here.')
+              : t('Pick a starting view. You can change it anytime in Settings.')}
           </p>
         </header>
 
         <div className="min-h-0 overflow-y-auto p-3 sm:p-5">
-          <div className="grid grid-cols-2 gap-2.5 sm:gap-4" role="group" aria-label="Plan appearance">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-4" role="group" aria-label={t('Plan appearance')}>
             {LOOK_OPTIONS.map((option) => {
               const selected = gridEnabled === option.value;
               return (
@@ -173,7 +176,7 @@ export const LookAndFeelAnnouncementDialog: React.FC<LookAndFeelAnnouncementDial
                     draggable={false}
                   />
                   <span className="mt-2.5 flex min-w-0 items-center justify-between gap-2 px-0.5">
-                    <span className="truncate text-sm font-semibold sm:text-base">{option.title}</span>
+                    <span className="truncate text-sm font-semibold sm:text-base">{t(option.title)}</span>
                     <span
                       aria-hidden="true"
                       className={`h-4 w-4 shrink-0 rounded-full border-2 p-[3px] ${
@@ -184,7 +187,7 @@ export const LookAndFeelAnnouncementDialog: React.FC<LookAndFeelAnnouncementDial
                     </span>
                   </span>
                   <span className="mt-0.5 block px-0.5 text-xs leading-snug text-muted-foreground sm:text-sm">
-                    {option.desc}
+                    {t(option.desc)}
                   </span>
                 </button>
               );
@@ -199,7 +202,7 @@ export const LookAndFeelAnnouncementDialog: React.FC<LookAndFeelAnnouncementDial
             onClick={onDismiss}
             className="min-h-11 w-full rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground outline-none transition-opacity motion-reduce:transition-none hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card sm:w-auto"
           >
-            Continue
+            {t('Continue')}
           </button>
         </footer>
       </div>

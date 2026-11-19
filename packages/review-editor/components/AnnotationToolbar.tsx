@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { useMentionAutocomplete } from '@plannotator/ui/hooks/useMentionAutocomplete';
 import { MentionAutocompleteMenu, mentionActiveOptionId } from '@plannotator/ui/components/MentionAutocomplete';
@@ -135,6 +136,7 @@ export const AnnotationToolbar: React.FC<AnnotationToolbarProps> = ({
   aiHistoryMessages = [],
   askOnly = false,
 }) => {
+  const t = useTranslate();
   const coarsePointer = hasPrimaryCoarsePointer();
   const visibleBounds = useVisibleViewportBounds(coarsePointer ? 16 : 0);
   const toolbarWidth = Math.min(TOOLBAR_MAX_WIDTH, visibleBounds.width);
@@ -260,7 +262,7 @@ export const AnnotationToolbar: React.FC<AnnotationToolbarProps> = ({
           <div className="flex items-center justify-between mb-2" {...dragHandleProps}>
             <span className="text-xs text-muted-foreground">
               {isEditing
-                ? 'Edit annotation'
+                ? t('Edit annotation')
                 : toolbarState.tokenSelection
                   ? formatTokenContext(toolbarState.tokenSelection)
                   : formatLineRange(toolbarState.range.start, toolbarState.range.end)}
@@ -269,15 +271,15 @@ export const AnnotationToolbar: React.FC<AnnotationToolbarProps> = ({
               <button
                 onClick={() => setShowCommentModal(true)}
                 className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                title="Expand comment"
-                aria-label="Expand comment"
+                title={t('Expand comment')}
+                aria-label={t('Expand comment')}
               >
                 <ExpandIcon />
               </button>
               <button
                 onClick={onCancel}
                 className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                title="Cancel"
+                title={t('Cancel')}
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -307,7 +309,7 @@ export const AnnotationToolbar: React.FC<AnnotationToolbarProps> = ({
             onSelect={mention.onSelect}
             aria-controls={mention.menu ? mentionListbox : undefined}
             aria-activedescendant={mentionActiveOptionId(mentionListbox, mention.menu)}
-            placeholder={liveSource ? 'Leave feedback, or @ an agent to send it now' : 'Leave feedback...'}
+            placeholder={liveSource ? t('Leave feedback, or @ an agent to send it now') : t('Leave feedback...')}
             className="w-full min-h-[4.5rem] max-h-[calc(var(--pn-viewport-height,100vh)-16rem)] px-3 py-2 bg-muted rounded-lg text-xs leading-6 resize-y border-0 focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground"
             rows={3}
             autoFocus={!coarsePointer}
@@ -333,11 +335,11 @@ export const AnnotationToolbar: React.FC<AnnotationToolbarProps> = ({
           {showSuggestedCode ? (
             <div className="mt-2">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-muted-foreground">Suggested code</span>
+                <span className="text-xs text-muted-foreground">{t('Suggested code')}</span>
                 <button
                   onClick={() => setShowCodeModal(true)}
                   className="p-0.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                  title="Expand editor"
+                  title={t('Expand editor')}
                 >
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
@@ -348,7 +350,7 @@ export const AnnotationToolbar: React.FC<AnnotationToolbarProps> = ({
                 ref={suggestedCodeRef}
                 value={suggestedCode}
                 onChange={(e) => setSuggestedCode(e.target.value)}
-                placeholder="Enter code suggestion..."
+                placeholder={t('Enter code suggestion...')}
                 className="suggested-code-input"
                 rows={4}
                 autoFocus={!coarsePointer}
@@ -385,7 +387,7 @@ export const AnnotationToolbar: React.FC<AnnotationToolbarProps> = ({
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
               </svg>
-              Add suggested code
+              {t('Add suggested code')}
             </button>
           )}
 
@@ -395,10 +397,10 @@ export const AnnotationToolbar: React.FC<AnnotationToolbarProps> = ({
               <button
                 onClick={handleAskAIClick}
                 className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
-                title={commentText.trim() ? 'Ask AI this question' : 'Switch to AI mode'}
+                title={commentText.trim() ? t('Ask AI this question') : t('Switch to AI mode')}
               >
                 <SparklesIcon className="w-3 h-3" />
-                Ask AI
+                {t('Ask AI')}
                 {aiHistoryMessages.length > 0 && (
                   <span className="text-xs font-mono bg-muted px-1 py-0.5 rounded">
                     {aiHistoryMessages.length}
@@ -413,7 +415,7 @@ export const AnnotationToolbar: React.FC<AnnotationToolbarProps> = ({
               disabled={!commentText.trim() && !suggestedCode.trim()}
               className="review-toolbar-btn primary disabled:opacity-50 disabled:cursor-not-allowed ml-auto"
             >
-              {isEditing ? 'Update' : 'Add Comment'}
+              {isEditing ? t('Update') : t('Add Comment')}
             </button>
           </div>
         </div>

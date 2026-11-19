@@ -341,6 +341,22 @@ describe.if(hasDom)("plan review decision control", () => {
     await waitFor(() => document.body.textContent?.includes("Automation level after plan approval"), "Settings");
   });
 
+  test("a Chinese change request sends the reviewer's original note on the deny route", async () => {
+    await mount(planPayload());
+    const previous = configStore.get("reviewLanguage");
+    try {
+      await act(async () => configStore.set("reviewLanguage", "zh-CN"));
+      expect(primaryButton()!.textContent).toContain("批准");
+      const note = "请保留 Settings 这个文件名。";
+      await chooseComposer("请求修改", note);
+      expect(decisions).toHaveLength(1);
+      expect(decisions[0]!.endpoint).toBe("deny");
+      expect(decisions[0]!.body.feedback).toContain(note);
+    } finally {
+      await act(async () => configStore.set("reviewLanguage", previous));
+    }
+  });
+
   test("Request changes… posts the note as a GLOBAL_COMMENT on /api/deny", async () => {
     await mount(planPayload());
     await chooseComposer("Request changes", "split the migration out");

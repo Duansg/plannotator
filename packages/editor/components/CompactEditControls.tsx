@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import React from 'react';
 import type { EditableDocumentSaveStatus } from '../editableDocuments';
 
@@ -22,6 +23,7 @@ export const CompactEditControls: React.FC<CompactEditControlsProps> = ({
   onSave,
   onExit,
 }) => {
+  const t = useTranslate();
   const saving = saveStatus === 'saving';
   const saveFailed = saveStatus === 'conflict' || saveStatus === 'error';
   const canSave = sourceBacked && saveStatus !== 'clean' && saveStatus !== 'saved';
@@ -44,9 +46,9 @@ export const CompactEditControls: React.FC<CompactEditControlsProps> = ({
       className="mb-3 flex w-full items-center gap-2 rounded-xl border border-border/60 bg-card/95 p-1.5 shadow-sm"
     >
       <div className="min-w-0 flex-1 px-2">
-        <span className="block truncate text-sm font-medium text-foreground">Editing {documentTitle}</span>
+        <span className="block truncate text-sm font-medium text-foreground">{t('Editing')} {documentTitle}</span>
         <span className="block text-[11px] leading-4 text-muted-foreground">
-          {sourceBacked ? 'Save writes to the source file' : 'Done adds this edit to your feedback'}
+          {sourceBacked ? t('Save writes to the source file') : t('Done adds this edit to your feedback')}
         </span>
       </div>
       {sourceBacked && (

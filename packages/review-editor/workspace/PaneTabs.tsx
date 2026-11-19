@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { Crosshair, Diff, FileText } from 'lucide-react';
 import { EllipsisName } from '../components/EllipsisName';
@@ -107,6 +108,7 @@ export const PaneTabs: React.FC<{
   onClose: (id: string) => void;
   onKeep?: (id: string) => void;
 }> = ({ pane, paneIndex, onActivate, onClose, onKeep }) => {
+  const t = useTranslate();
   const listRef = useRef<HTMLDivElement>(null);
   const compact = useReviewStateOptional()?.isCompactTouchLayout ?? false;
   const hidden = useHiddenTabs(listRef, pane.tabs.map((tab) => `${tab.id}\0${tab.title}`).join('\n'), pane.tabs.length < 2, pane.activeId);
@@ -186,7 +188,7 @@ export const PaneTabs: React.FC<{
                 active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
               } ${preview ? 'italic' : ''}`}
             >
-              <span className="min-w-0 flex"><TabTitle title={tabLabel(tab)} /></span>
+              <span className="min-w-0 flex"><TabTitle title={tabLabel(tab, t)} /></span>
             </button>
             {closable && <button
               type="button"

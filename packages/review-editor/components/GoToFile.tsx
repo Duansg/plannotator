@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { fuzzySearchPaths, type FuzzyPathMatch } from '@plannotator/shared/fuzzy-path';
@@ -71,6 +72,7 @@ export const GoToFile: React.FC<GoToFileProps> = ({
   snapshotId,
   fetchImpl = fetch,
 }) => {
+  const t = useTranslate();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const [serverMatches, setServerMatches] = useState<{ query: string; matches: FuzzyPathMatch[] } | null>(null);
@@ -190,7 +192,7 @@ export const GoToFile: React.FC<GoToFileProps> = ({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Go to File"
+        aria-label={t('Go to File')}
         data-go-to-file
         onKeyDown={onKeyDown}
         className="absolute left-1/2 top-[8vh] -translate-x-1/2 w-[min(680px,calc(100vw-32px))] rounded-lg border border-border bg-popover text-popover-foreground shadow-2xl overflow-hidden"
@@ -203,7 +205,7 @@ export const GoToFile: React.FC<GoToFileProps> = ({
             ref={inputRef}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Go to File…"
+            placeholder={t('Go to File…')}
             className="flex-1 min-w-0 bg-transparent border-0 shadow-none outline-none focus:outline-none focus:ring-0 text-sm placeholder:text-muted-foreground"
             role="combobox"
             aria-expanded="true"
@@ -215,14 +217,14 @@ export const GoToFile: React.FC<GoToFileProps> = ({
             data-go-to-file-input
           />
         </div>
-        <div ref={listRef} id={listId} role="listbox" aria-label="Files" className="max-h-[min(420px,60vh)] overflow-y-auto py-1">
+        <div ref={listRef} id={listId} role="listbox" aria-label={t('Files')} className="max-h-[min(420px,60vh)] overflow-y-auto py-1">
           {rows.length === 0 && (
             <div className="px-4 py-6 text-center text-xs text-muted-foreground" data-go-to-file-empty>
               {serverError
                 ? serverError
                 : query.trim()
-                  ? searchOnServer && serverMatches?.query !== query ? 'Searching…' : `No file matches “${query.trim()}”`
-                  : 'Type to search every file'}
+                  ? searchOnServer && serverMatches?.query !== query ? t('Searching…') : `No file matches “${query.trim()}”`
+                  : t('Type to search every file')}
             </div>
           )}
           {rows.map((row, index) => {
@@ -280,9 +282,9 @@ export const GoToFile: React.FC<GoToFileProps> = ({
           })}
         </div>
         <div className="flex items-center gap-3 px-3 h-8 border-t border-border/60 text-xs text-muted-foreground">
-          <span><kbd className="font-mono">↑</kbd> <kbd className="font-mono">↓</kbd> move</span>
-          <span><kbd className="font-mono">↵</kbd> open</span>
-          <span><kbd className="font-mono">{altKey}</kbd> <kbd className="font-mono">↵</kbd> open to the side</span>
+          <span><kbd className="font-mono">↑</kbd> <kbd className="font-mono">↓</kbd> {t('move')}</span>
+          <span><kbd className="font-mono">↵</kbd> {t('open')}</span>
+          <span><kbd className="font-mono">{altKey}</kbd> <kbd className="font-mono">↵</kbd> {t('open to the side')}</span>
           <span className="flex-1" />
           <span data-go-to-file-scope>{scopeNote}</span>
         </div>

@@ -1,3 +1,4 @@
+import { useTranslate } from './ReviewLanguage';
 import React from 'react';
 import { Check } from 'lucide-react';
 import type { Agent } from '../hooks/useAgents';
@@ -53,12 +54,13 @@ const RadioRow: React.FC<{
  * writes the same `agentSwitch` setting Settings does.
  */
 export const AgentSwitchMenuSection: React.FC<{ agents: Agent[] }> = ({ agents }) => {
+  const t = useTranslate();
   // Reactive: config.json's value lands through configStore.init() once
   // /api/plan answers, which may be after this mounts (#1390).
   const stored = useConfigValue('agentSwitch');
   const setting: AgentSwitchSettings = stored ?? getAgentSwitchDefaults('plan');
   const isCustom = setting.switchTo === 'custom' && !!setting.customName;
-  const title = 'After approval, switch to';
+  const title = t('After approval, switch to');
 
   return (
     <>
@@ -80,7 +82,7 @@ export const AgentSwitchMenuSection: React.FC<{ agents: Agent[] }> = ({ agents }
           </RadioRow>
         ))}
         {isCustom && (
-          <RadioRow checked onSelect={() => {}} note="(custom)">
+          <RadioRow checked onSelect={() => {}} note={t('(custom)')}>
             {setting.customName}
           </RadioRow>
         )}
@@ -88,7 +90,7 @@ export const AgentSwitchMenuSection: React.FC<{ agents: Agent[] }> = ({ agents }
           checked={setting.switchTo === 'disabled'}
           onSelect={() => saveAgentSwitchSettings({ switchTo: 'disabled' })}
         >
-          No switch
+          {t('No switch')}
         </RadioRow>
       </div>
     </>
@@ -103,27 +105,30 @@ export const PermissionModeMenuLine: React.FC<{
   agentName: string;
   modeLabel: string;
   onChange: () => void;
-}> = ({ agentName, modeLabel, onChange }) => (
-  <>
-    <ActionMenuDivider />
-    <div
-      data-permission-mode-line="true"
-      className="flex items-center justify-between gap-2 px-3 py-1.5 text-[10px] text-muted-foreground"
-    >
-      <span>
-        After approval, {agentName} runs in{' '}
-        <span className="font-medium text-foreground">{modeLabel}</span>
-      </span>
-      <button
-        type="button"
-        role="menuitem"
-        onClick={onChange}
-        data-permission-mode-change="true"
-        aria-label={`Change the permission mode (${modeLabel}) in Settings`}
-        className="rounded px-1 py-0.5 text-[10px] text-primary outline-none hover:underline focus-visible:ring-1 focus-visible:ring-ring/60"
+}> = ({ agentName, modeLabel, onChange }) => {
+  const t = useTranslate();
+  return (
+    <>
+      <ActionMenuDivider />
+      <div
+        data-permission-mode-line="true"
+        className="flex items-center justify-between gap-2 px-3 py-1.5 text-[10px] text-muted-foreground"
       >
-        Change
-      </button>
-    </div>
-  </>
-);
+        <span>
+          {t('After approval, {agent} runs in', { agent: agentName })}{' '}
+          <span className="font-medium text-foreground">{modeLabel}</span>
+        </span>
+        <button
+          type="button"
+          role="menuitem"
+          onClick={onChange}
+          data-permission-mode-change="true"
+          aria-label={t('Change the permission mode ({mode}) in Settings', { mode: modeLabel })}
+          className="rounded px-1 py-0.5 text-[10px] text-primary outline-none hover:underline focus-visible:ring-1 focus-visible:ring-ring/60"
+        >
+          {t('Change')}
+        </button>
+      </div>
+    </>
+  );
+};

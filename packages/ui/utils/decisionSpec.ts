@@ -1,7 +1,7 @@
 /**
  * Pure state→spec mapping for the unified header decision control.
  *
- * No React, no DOM, no imports — this is what keeps the state matrix testable
+ * No React or DOM — this is what keeps the state matrix testable
  * in the plain `bun test` lane and keeps "both apps and both states are data,
  * not forked components" true. `DecisionControl.tsx` renders whatever this
  * returns; the apps translate ids into handlers.
@@ -16,6 +16,8 @@
  * non-gate empty menu carries ONE composer ("Send a note…"), and no
  * user-facing string uses an em dash.
  */
+
+import { english, type Translate } from './reviewLanguage';
 
 export type DecisionActionId =
   | 'primary'              // the left segment
@@ -175,8 +177,8 @@ export interface DecisionPlatformInput {
 
 export const DECISION_NOTE_PLACEHOLDER = 'Add a note...';
 
-function annotationNoun(count: number): string {
-  return count === 1 ? 'annotation' : 'annotations';
+export function annotationCountLabel(count: number, t: Translate): string {
+  return t(count === 1 ? '{count} annotation' : '{count} annotations', { count });
 }
 
 /**
@@ -184,7 +186,7 @@ function annotationNoun(count: number): string {
  * `approvalFlow` (gate annotate, or review) makes it `Approve`; plain annotate
  * gets `Done`.
  */
-function buildEmptySpec(input: DecisionSpecInput, approvalFlow: boolean): DecisionSpec {
+function buildEmptySpec(input: DecisionSpecInput, approvalFlow: boolean, t: Translate): DecisionSpec {
   // "Approve with a note…" carries a note on the approve channel, which four
   // runtimes still discard — it renders only where the advert says delivery
   // works (never an item that silently drops content). Non-gate annotate has
@@ -195,16 +197,16 @@ function buildEmptySpec(input: DecisionSpecInput, approvalFlow: boolean): Decisi
   const positive: DecisionMenuItem | null = approvalFlow && input.approvalNotesSupported
     ? {
         id: 'note-with-approval',
-        label: 'Approve with a note…',
-        subtitle: 'Approve and send a short note with it',
+        label: t('Approve with a note…'),
+        subtitle: t('Approve and send a short note with it'),
         tone: 'success',
         icon: 'check',
         composer: {
-          title: 'Approve with a note',
-          actionLabel: 'Approve and send note',
+          title: t('Approve with a note'),
+          actionLabel: t('Approve and send note'),
           tone: 'success',
           icon: 'check',
-          placeholder: DECISION_NOTE_PLACEHOLDER,
+          placeholder: t(DECISION_NOTE_PLACEHOLDER),
         },
       }
     : null;
@@ -213,17 +215,17 @@ function buildEmptySpec(input: DecisionSpecInput, approvalFlow: boolean): Decisi
     ? {
         id: 'request-changes',
         // Frozen copy (maintainer-approved): 'Request changes…'.
-        label: 'Request changes…',
-        subtitle: 'Write overall feedback, sent as a change request',
+        label: t('Request changes…'),
+        subtitle: t('Write overall feedback, sent as a change request'),
         tone: 'primary',
         icon: 'send',
         dividerBefore: positive !== null,
         composer: {
-          title: 'Request changes',
-          actionLabel: 'Send as feedback',
+          title: t('Request changes'),
+          actionLabel: t('Send as feedback'),
           tone: 'primary',
           icon: 'send',
-          placeholder: DECISION_NOTE_PLACEHOLDER,
+          placeholder: t(DECISION_NOTE_PLACEHOLDER),
         },
       }
     : {
@@ -231,17 +233,17 @@ function buildEmptySpec(input: DecisionSpecInput, approvalFlow: boolean): Decisi
         // Same id and route as the old change request (plain /api/feedback,
         // no approval framing) — only the copy is new. Free prose, NOT frozen.
         id: 'request-changes',
-        label: 'Send a note…',
-        subtitle: 'Write a note and send it as feedback',
+        label: t('Send a note…'),
+        subtitle: t('Write a note and send it as feedback'),
         tone: 'primary',
         icon: 'send',
         dividerBefore: false,
         composer: {
-          title: 'Send a note',
-          actionLabel: 'Send as feedback',
+          title: t('Send a note'),
+          actionLabel: t('Send as feedback'),
           tone: 'primary',
           icon: 'send',
-          placeholder: DECISION_NOTE_PLACEHOLDER,
+          placeholder: t(DECISION_NOTE_PLACEHOLDER),
         },
       };
 
@@ -250,22 +252,22 @@ function buildEmptySpec(input: DecisionSpecInput, approvalFlow: boolean): Decisi
       ? {
           id: 'primary',
           // Frozen copy (maintainer-approved): 'Approve'.
-          label: 'Approve',
-          title: 'Approve: no changes requested',
+          label: t('Approve'),
+          title: t('Approve: no changes requested'),
           tone: 'success',
           icon: 'check',
         }
       : {
           id: 'primary',
           // Frozen copy (maintainer-approved): 'Done'.
-          label: 'Done',
+          label: t('Done'),
           // M1 ruling: in the agent-terminal delivered state the transport is
           // unchanged (the full payload still posts, because the outer agent
           // on stdout may never have seen the terminal delivery), so the
           // tooltip must not claim "no feedback". Free prose, NOT frozen.
           title: input.feedbackDelivered
-            ? 'Finish: sends the session record (feedback already shared in the terminal)'
-            : 'Finish: records that you reviewed with no feedback',
+            ? t('Finish: sends the session record (feedback already shared in the terminal)')
+            : t('Finish: records that you reviewed with no feedback'),
           // Maintainer ruling (post-demo): Done without a gate is a positive
           // finish, NOT an approval — no success tone, no check icon, so it
           // can never be mistaken for the gate/review Approve.
@@ -279,26 +281,26 @@ function buildEmptySpec(input: DecisionSpecInput, approvalFlow: boolean): Decisi
  * The feedback state: something to send, the primary is `Send Feedback`.
  * Identical across apps; only the discard item's verb follows the flow.
  */
-function buildFeedbackSpec(input: DecisionSpecInput, approvalFlow: boolean): DecisionSpec {
+function buildFeedbackSpec(input: DecisionSpecInput, approvalFlow: boolean, t: Translate): DecisionSpec {
   const { count } = input;
-  const noun = annotationNoun(count);
+  const feedback = annotationCountLabel(count, t);
 
   const items: DecisionMenuItem[] = [
     {
       id: 'note-with-feedback',
-      label: 'Send with a note…',
+      label: t('Send with a note…'),
       subtitle:
         count > 0
-          ? `Add an overall note on top of your ${count} ${noun}`
-          : 'Add an overall note on top of your feedback',
+          ? t('Add an overall note on top of your {feedback}', { feedback })
+          : t('Add an overall note on top of your feedback'),
       tone: 'primary',
       icon: 'send',
       composer: {
-        title: 'Send with a note',
-        actionLabel: 'Send feedback with note',
+        title: t('Send with a note'),
+        actionLabel: t('Send feedback with note'),
         tone: 'primary',
         icon: 'send',
-        placeholder: DECISION_NOTE_PLACEHOLDER,
+        placeholder: t(DECISION_NOTE_PLACEHOLDER),
       },
     },
   ];
@@ -315,11 +317,11 @@ function buildFeedbackSpec(input: DecisionSpecInput, approvalFlow: boolean): Dec
     items.push({
       id: 'approve-with-notes',
       // Frozen copy (maintainer-approved): 'Approve with notes'.
-      label: 'Approve with notes',
+      label: t('Approve with notes'),
       subtitle:
         count > 0
-          ? `Approve; your ${count} ${noun} ride along as non-blocking guidance`
-          : 'Approve; your edits and attachments ride along as non-blocking guidance',
+          ? t('Approve; your {feedback} ride along as non-blocking guidance', { feedback })
+          : t('Approve; your edits and attachments ride along as non-blocking guidance'),
       tone: 'success',
       icon: 'check',
       dividerBefore: dividerPending,
@@ -334,9 +336,9 @@ function buildFeedbackSpec(input: DecisionSpecInput, approvalFlow: boolean): Dec
     items.push({
       id: 'discard-and-finish',
       label: approvalFlow
-        ? `Approve, discard ${count} ${noun}…`
-        : `Done, discard ${count} ${noun}…`,
-      subtitle: 'Asks to confirm: the annotations are not sent',
+        ? t('Approve, discard {feedback}…', { feedback })
+        : t('Done, discard {feedback}…', { feedback }),
+      subtitle: t('Asks to confirm: the annotations are not sent'),
       tone: 'destructive',
       icon: 'check',
       dividerBefore: dividerPending,
@@ -345,18 +347,18 @@ function buildFeedbackSpec(input: DecisionSpecInput, approvalFlow: boolean): Dec
       // Free prose, NOT frozen.
       confirm: approvalFlow
         ? {
-            title: `Discard ${count} ${noun} and approve?`,
+            title: t('Discard {feedback} and approve?', { feedback }),
             message:
-              'These annotations are change requests, including any from other tools. Approving without them tells the agent no changes are needed.',
+              t('These annotations are change requests, including any from other tools. Approving without them tells the agent no changes are needed.'),
             // Frozen copy (maintainer-approved): 'Discard & approve'.
-            confirmText: 'Discard & approve',
+            confirmText: t('Discard & approve'),
           }
         : {
-            title: `Discard ${count} ${noun} and finish?`,
+            title: t('Discard {feedback} and finish?', { feedback }),
             message:
-              'These annotations are change requests, including any from other tools. Finishing without them sends a positive review record; any direct edits still ride along.',
+              t('These annotations are change requests, including any from other tools. Finishing without them sends a positive review record; any direct edits still ride along.'),
             // Frozen copy (maintainer-approved): 'Discard & finish'.
-            confirmText: 'Discard & finish',
+            confirmText: t('Discard & finish'),
           },
     });
   }
@@ -365,10 +367,10 @@ function buildFeedbackSpec(input: DecisionSpecInput, approvalFlow: boolean): Dec
     primary: {
       id: 'primary',
       // Frozen copy (maintainer-approved): 'Send Feedback'.
-      label: 'Send Feedback',
-      shortLabel: 'Send',
-      mobileLabel: 'Send feedback',
-      title: 'Send your feedback to the agent',
+      label: t('Send Feedback'),
+      shortLabel: t('Send'),
+      mobileLabel: t('Send feedback'),
+      title: t('Send your feedback to the agent'),
       tone: 'primary',
       icon: 'send',
     },
@@ -383,27 +385,27 @@ function buildFeedbackSpec(input: DecisionSpecInput, approvalFlow: boolean): Dec
  * the ReviewSubmissionDialog opens in, nothing more. `discard-and-finish` is
  * never emitted — the dialog owns what happens to unsent annotations.
  */
-function buildPlatformSpec(input: DecisionSpecInput, platform: DecisionPlatformInput): DecisionSpec {
+function buildPlatformSpec(input: DecisionSpecInput, platform: DecisionPlatformInput, t: Translate): DecisionSpec {
   const { selfAuthored } = platform;
-  const noun = platform.mrLabel === 'MR' ? 'merge request' : 'pull request';
+  const noun = platform.mrLabel === 'MR' ? t('merge request') : t('pull request');
   // Frozen copy (maintainer-approved): the self-approval mute reason.
-  const selfReason = `You can't approve your own ${noun} on ${platform.label}.`;
-  const selfReasonShort = `You can't approve your own ${platform.mrLabel}`;
+  const selfReason = t("You can't approve your own {request} on {platform}.", { request: noun, platform: platform.label });
+  const selfReasonShort = t("You can't approve your own {request}", { request: platform.mrLabel });
   const requestChangesUnsupported = platform.requestChangesSupported === false;
   // GitHub refuses REQUEST_CHANGES on your own PR, exactly like APPROVE.
   const requestChangesMuted = selfAuthored
     && platform.requestChangesSupported === true
     && platform.selfRequestChangesBlocked !== false;
-  const selfRequestChangesShort = `You can't request changes on your own ${platform.mrLabel}`;
-  const postsAsComment = `Posts as a comment; ${platform.label} has no request-changes review`;
+  const selfRequestChangesShort = t("You can't request changes on your own {request}", { request: platform.mrLabel });
+  const postsAsComment = t('Posts as a comment; {platform} has no request-changes review', { platform: platform.label });
 
   if (!input.hasFeedback) {
     return {
       primary: {
         id: 'primary',
         // Frozen copy (maintainer-approved): 'Approve'.
-        label: 'Approve',
-        title: selfAuthored ? selfReason : 'Approve: no changes needed',
+        label: t('Approve'),
+        title: selfAuthored ? selfReason : t('Approve: no changes needed'),
         tone: 'success',
         icon: 'check',
         ...(selfAuthored ? { muted: true } : {}),
@@ -413,10 +415,10 @@ function buildPlatformSpec(input: DecisionSpecInput, platform: DecisionPlatformI
           id: 'note-with-approval',
           // Approved design (PR6 detail confirmed): the empty-state platform
           // menu is "Approve with a comment…" + "Request changes…".
-          label: 'Approve with a comment…',
+          label: t('Approve with a comment…'),
           subtitle: selfAuthored
             ? selfReasonShort
-            : 'Opens the submission dialog; the comment rides the review body',
+            : t('Opens the submission dialog; the comment rides the review body'),
           tone: 'success',
           icon: 'check',
           ...(selfAuthored ? { muted: true } : {}),
@@ -424,12 +426,12 @@ function buildPlatformSpec(input: DecisionSpecInput, platform: DecisionPlatformI
         {
           id: 'request-changes',
           // Frozen copy (maintainer-approved): 'Request changes…'.
-          label: 'Request changes…',
+          label: t('Request changes…'),
           subtitle: requestChangesMuted
             ? selfRequestChangesShort
             : requestChangesUnsupported
               ? postsAsComment
-              : 'Overall feedback, zero line comments, via the dialog',
+              : t('Overall feedback, zero line comments, via the dialog'),
           tone: 'primary',
           icon: 'send',
           dividerBefore: true,
@@ -440,8 +442,8 @@ function buildPlatformSpec(input: DecisionSpecInput, platform: DecisionPlatformI
         ...(requestChangesMuted
           ? [{
               id: 'note-with-feedback' as const,
-              label: 'Comment…',
-              subtitle: 'Overall feedback as a neutral comment, via the dialog',
+              label: t('Comment…'),
+              subtitle: t('Overall feedback as a neutral comment, via the dialog'),
               tone: 'primary' as const,
               icon: 'send' as const,
             }]
@@ -454,30 +456,30 @@ function buildPlatformSpec(input: DecisionSpecInput, platform: DecisionPlatformI
     primary: {
       id: 'primary',
       // Frozen copy (maintainer-approved): 'Post Comments'.
-      label: 'Post Comments',
-      shortLabel: 'Post',
-      mobileLabel: 'Post comments',
-      title: `Post review to ${platform.label}`,
+      label: t('Post Comments'),
+      shortLabel: t('Post'),
+      mobileLabel: t('Post comments'),
+      title: t('Post review to {platform}', { platform: platform.label }),
       tone: 'primary',
       icon: 'send',
     },
     items: [
       {
         id: 'approve-with-notes',
-        label: 'Approve with comments…',
-        subtitle: selfAuthored ? selfReasonShort : 'Submission dialog in approve mode',
+        label: t('Approve with comments…'),
+        subtitle: selfAuthored ? selfReasonShort : t('Submission dialog in approve mode'),
         tone: 'success',
         icon: 'check',
         ...(selfAuthored ? { muted: true } : {}),
       },
       {
         id: 'note-with-feedback',
-        label: 'Post comments, then…',
+        label: t('Post comments, then…'),
         subtitle: requestChangesUnsupported
           ? postsAsComment
           : requestChangesMuted
-            ? `Posts as a neutral comment; you can't request changes on your own ${platform.mrLabel}`
-            : 'Request changes or stay neutral, chosen in the dialog',
+            ? t("Posts as a neutral comment; you can't request changes on your own {request}", { request: platform.mrLabel })
+            : t('Request changes or stay neutral, chosen in the dialog'),
         tone: 'primary',
         icon: 'send',
         dividerBefore: true,
@@ -504,18 +506,18 @@ function approveTargetSuffix(target: string | undefined): string {
  * editor's describeFeedbackLoss so the menu and the close warnings agree;
  * duplicated here because this module imports nothing.
  */
-function planFeedbackPhrase(count: number, plan: DecisionPlanInput): { text: string; plural: boolean } {
+function planFeedbackPhrase(count: number, plan: DecisionPlanInput, t: Translate): { text: string; plural: boolean } {
   const answers = Math.min(Math.max(plan.answers, 0), Math.max(count, 0));
   const others = Math.max(count, 0) - answers;
   const parts = [
-    answers > 0 ? `${answers} answer${answers === 1 ? '' : 's'}` : '',
-    others > 0 ? `${others} ${annotationNoun(others)}` : '',
-    plan.directEdits ? 'direct edits' : '',
+    answers > 0 ? t(answers === 1 ? '{count} answer' : '{count} answers', { count: answers }) : '',
+    others > 0 ? annotationCountLabel(others, t) : '',
+    plan.directEdits ? t('direct edits') : '',
   ].filter(Boolean);
-  if (parts.length === 0) return { text: 'feedback', plural: false };
+  if (parts.length === 0) return { text: t('feedback'), plural: false };
   const text = parts.length === 1
     ? parts[0]
-    : `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`;
+    : t('{first} and {last}', { first: parts.slice(0, -1).join(t(', ')), last: parts[parts.length - 1] });
   return { text, plural: parts.length > 1 || answers + others > 1 || plan.directEdits };
 }
 
@@ -529,38 +531,38 @@ function planFeedbackPhrase(count: number, plan: DecisionPlanInput): { text: str
  * server advertises delivery, and "Approve, discard …" always (its subtitle
  * and confirm name the agent when that is the only way to approve).
  */
-function buildPlanSpec(input: DecisionSpecInput): DecisionSpec {
+function buildPlanSpec(input: DecisionSpecInput, t: Translate): DecisionSpec {
   const plan: DecisionPlanInput = input.plan ?? {
     answers: 0,
     directEdits: false,
     answersOnly: false,
-    agentName: 'The agent',
+    agentName: t('The agent'),
   };
   const target = approveTargetSuffix(plan.approveTarget);
 
   if (!input.hasFeedback) {
-    const empty = buildEmptySpec(input, true);
+    const empty = buildEmptySpec(input, true, t);
     return {
       primary: target ? { ...empty.primary, label: `${empty.primary.label}${target}` } : empty.primary,
       items: empty.items,
     };
   }
 
-  const { text: what, plural } = planFeedbackPhrase(input.count, plan);
-  const sendLabel = plan.answersOnly ? SEND_ANSWERS : 'Send Feedback';
+  const { text: what, plural } = planFeedbackPhrase(input.count, plan, t);
+  const sendLabel = plan.answersOnly ? t(SEND_ANSWERS) : t('Send Feedback');
   const items: DecisionMenuItem[] = [
     {
       id: 'note-with-feedback',
-      label: plan.answersOnly ? 'Send answers with a note…' : 'Send with a note…',
-      subtitle: `Add an overall note on top of your ${what}`,
+      label: plan.answersOnly ? t('Send answers with a note…') : t('Send with a note…'),
+      subtitle: t('Add an overall note on top of your {feedback}', { feedback: what }),
       tone: 'primary',
       icon: 'send',
       composer: {
-        title: 'Send with a note',
-        actionLabel: plan.answersOnly ? 'Send answers with note' : 'Send feedback with note',
+        title: t('Send with a note'),
+        actionLabel: plan.answersOnly ? t('Send answers with note') : t('Send feedback with note'),
         tone: 'primary',
         icon: 'send',
-        placeholder: DECISION_NOTE_PLACEHOLDER,
+        placeholder: t(DECISION_NOTE_PLACEHOLDER),
       },
     },
   ];
@@ -569,50 +571,52 @@ function buildPlanSpec(input: DecisionSpecInput): DecisionSpec {
     items.push({
       id: 'approve-with-notes',
       // Frozen copy (maintainer-approved): 'Approve with notes'.
-      label: `Approve with notes${target}`,
-      subtitle: `Approve; your ${what} ${plural ? 'ride' : 'rides'} along as non-blocking guidance`,
+      label: t('Approve with notes') + target,
+      subtitle: t(plural ? 'Approve; your {feedback} ride along as non-blocking guidance' : 'Approve; your {feedback} rides along as non-blocking guidance', { feedback: what }),
       tone: 'success',
       icon: 'check',
       dividerBefore: true,
     });
   }
 
-  const pronoun = plural ? 'them' : 'it';
   if (plan.savedFilesOnly) {
     // Nothing is lost on approval: the changes stay on disk. Same confirm
     // (one click away from a plain Approve would hide that the agent is not
     // told), different words.
     items.push({
       id: 'discard-and-finish',
-      label: 'Approve without telling the agent…',
-      subtitle: "Already on disk; the agent isn't told. Asks to confirm",
+      label: t('Approve without telling the agent…'),
+      subtitle: t("Already on disk; the agent isn't told. Asks to confirm"),
       tone: 'destructive',
       icon: 'check',
       dividerBefore: !input.approvalNotesSupported,
       confirm: {
-        title: 'Approve without telling the agent?',
+        title: t('Approve without telling the agent?'),
         message: plan.savedFilesOnly,
         // Frozen copy (maintainer-approved): 'Discard & approve' is the
         // discard confirm's; this one discards nothing.
-        confirmText: 'Approve',
+        confirmText: t('Approve'),
       },
     });
   } else items.push({
     id: 'discard-and-finish',
-    label: `Approve, discard ${what}…`,
+    label: t('Approve, discard {feedback}…', { feedback: what }),
     subtitle: input.approvalNotesSupported
-      ? 'Asks to confirm: nothing is sent'
-      : `${plan.agentName} can't take notes on approval; asks to confirm`,
+      ? t('Asks to confirm: nothing is sent')
+      : t("{agent} can't take notes on approval; asks to confirm", { agent: plan.agentName }),
     tone: 'destructive',
     icon: 'check',
     dividerBefore: !input.approvalNotesSupported,
     confirm: {
-      title: `Discard ${what} and approve?`,
+      title: t('Discard {feedback} and approve?', { feedback: what }),
       message: input.approvalNotesSupported
-        ? `Approving without ${pronoun} tells the agent no changes are needed.`
-        : `${plan.agentName} doesn't take feedback on approval, so your ${what} would be lost. To send ${pronoun}, use ${sendLabel}.`,
+        ? t(plural ? 'Approving without them tells the agent no changes are needed.' : 'Approving without it tells the agent no changes are needed.')
+        : t(plural
+            ? "{agent} doesn't take feedback on approval, so your {feedback} would be lost. To send them, use {send}."
+            : "{agent} doesn't take feedback on approval, so your {feedback} would be lost. To send it, use {send}.",
+          { agent: plan.agentName, feedback: what, send: sendLabel }),
       // Frozen copy (maintainer-approved): 'Discard & approve'.
-      confirmText: 'Discard & approve',
+      confirmText: t('Discard & approve'),
     },
   });
 
@@ -621,19 +625,19 @@ function buildPlanSpec(input: DecisionSpecInput): DecisionSpec {
       ? {
           id: 'primary',
           // Frozen copy (owner-approved mock): 'Send answers'.
-          label: SEND_ANSWERS,
-          mobileLabel: SEND_ANSWERS,
-          title: 'Send your answers to the agent',
+          label: t(SEND_ANSWERS),
+          mobileLabel: t(SEND_ANSWERS),
+          title: t('Send your answers to the agent'),
           tone: 'primary',
           icon: 'send',
         }
       : {
           id: 'primary',
           // Frozen copy (maintainer-approved): 'Send Feedback'.
-          label: 'Send Feedback',
-          shortLabel: 'Send',
-          mobileLabel: 'Send feedback',
-          title: 'Send your feedback to the agent',
+          label: t('Send Feedback'),
+          shortLabel: t('Send'),
+          mobileLabel: t('Send feedback'),
+          title: t('Send your feedback to the agent'),
           tone: 'primary',
           icon: 'send',
         },
@@ -641,14 +645,14 @@ function buildPlanSpec(input: DecisionSpecInput): DecisionSpec {
   };
 }
 
-export function buildDecisionSpec(input: DecisionSpecInput): DecisionSpec {
+export function buildDecisionSpec(input: DecisionSpecInput, t: Translate = english): DecisionSpec {
   // PR6 (§3.4): the platform destination maps onto the same spec shape with
   // no composer items; presence of the arm selects it outright.
-  if (input.platform) return buildPlatformSpec(input, input.platform);
-  if (input.app === 'plan') return buildPlanSpec(input);
+  if (input.platform) return buildPlatformSpec(input, input.platform, t);
+  if (input.app === 'plan') return buildPlanSpec(input, t);
   // Review's primary positive decision IS approval, gate flag or not.
   const approvalFlow = input.app === 'review' || input.gate;
   return input.hasFeedback
-    ? buildFeedbackSpec(input, approvalFlow)
-    : buildEmptySpec(input, approvalFlow);
+    ? buildFeedbackSpec(input, approvalFlow, t)
+    : buildEmptySpec(input, approvalFlow, t);
 }

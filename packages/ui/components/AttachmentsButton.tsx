@@ -1,3 +1,4 @@
+import { useTranslate } from './ReviewLanguage';
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { createPortal } from 'react-dom';
 import { ImageThumbnail, getImageSrc } from './ImageThumbnail';
@@ -78,6 +79,7 @@ export const AttachmentsButton: React.FC<AttachmentsButtonProps> = ({
   hideLabel = false,
   onPendingChange,
 }) => {
+  const t = useTranslate();
   const hostUpload = useContext(CommentUploadContext);
   const anyFile = hostUpload?.files === true;
   const pictures = images.filter((image) => image.kind !== 'file');
@@ -286,8 +288,8 @@ export const AttachmentsButton: React.FC<AttachmentsButtonProps> = ({
         ref={buttonRef}
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        aria-label="Attachments"
-        title="Attachments"
+        aria-label={t('Attachments')}
+        title={t('Attachments')}
         className="group relative flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
       >
         {/* Show stacked thumbnails if we have images */}
@@ -338,7 +340,7 @@ export const AttachmentsButton: React.FC<AttachmentsButtonProps> = ({
         )}
         {(!hideLabel || images.length > 0) && (
           <span className={variant === 'inline' ? 'sr-only' : ''}>
-            {images.length > 0 ? `${images.length}` : 'Images'}
+            {images.length > 0 ? `${images.length}` : t('Images')}
           </span>
         )}
       </button>
@@ -347,22 +349,22 @@ export const AttachmentsButton: React.FC<AttachmentsButtonProps> = ({
         <span className="pn-picture-status inline-flex items-center gap-1 text-xs whitespace-nowrap" role="status" data-picture-status={pending.error ? 'failed' : 'uploading'}>
           {pending.error ? (
             <>
-              <span style={{ color: 'var(--destructive)' }} title={pending.error}>{pending.kind === 'file' ? 'File not added' : 'Picture not added'}</span>
+              <span style={{ color: 'var(--destructive)' }} title={pending.error}>{pending.kind === 'file' ? t('File not added') : t('Picture not added')}</span>
               <button
                 type="button"
                 className="px-1.5 py-1 rounded-md font-medium text-foreground hover:bg-muted/50"
                 onClick={() => hostUpload && uploadThroughHost(hostUpload, pending)}
               >
-                Retry
+                {t('Retry')}
               </button>
             </>
           ) : (
-            <span className="text-muted-foreground tabular-nums">Uploading {pending.kind === 'file' ? 'file' : 'picture'} {Math.round(pending.progress * 100)}%</span>
+            <span className="text-muted-foreground tabular-nums">{t('Uploading')} {pending.kind === 'file' ? 'file' : 'picture'} {Math.round(pending.progress * 100)}%</span>
           )}
           <button
             type="button"
-            aria-label={pending.error ? `Remove the ${pending.kind === 'file' ? 'file' : 'picture'}` : 'Stop the upload'}
-            title={pending.error ? `Remove the ${pending.kind === 'file' ? 'file' : 'picture'}` : 'Stop the upload'}
+            aria-label={pending.error ? `Remove the ${pending.kind === 'file' ? 'file' : 'picture'}` : t('Stop the upload')}
+            title={pending.error ? `Remove the ${pending.kind === 'file' ? 'file' : 'picture'}` : t('Stop the upload')}
             className="w-6 h-6 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50"
             onClick={stopPending}
           >
@@ -393,7 +395,7 @@ export const AttachmentsButton: React.FC<AttachmentsButtonProps> = ({
             <div className="space-y-3">
               {/* Header */}
               <div className="flex items-center justify-between">
-                <div className="text-sm font-medium">Attachments</div>
+                <div className="text-sm font-medium">{t('Attachments')}</div>
                 {images.length > 0 && (
                   <span className="text-[10px] text-muted-foreground">
                     {anyFile ? `${images.length} attached` : `${images.length} image${images.length !== 1 ? 's' : ''}`}
@@ -401,7 +403,7 @@ export const AttachmentsButton: React.FC<AttachmentsButtonProps> = ({
                 )}
               </div>
               <p className="text-[11px] text-muted-foreground -mt-1">
-                {anyFile ? 'Add pictures or files to include with your comment' : 'Add images to include with your feedback'}
+                {anyFile ? t('Add pictures or files to include with your comment') : t('Add images to include with your feedback')}
               </p>
 
               {/* Drop zone / file picker */}
@@ -422,7 +424,7 @@ export const AttachmentsButton: React.FC<AttachmentsButtonProps> = ({
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    <span className="text-xs">Uploading...</span>
+                    <span className="text-xs">{t('Uploading...')}</span>
                   </div>
                 ) : (
                   <>
@@ -430,7 +432,7 @@ export const AttachmentsButton: React.FC<AttachmentsButtonProps> = ({
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                     </svg>
                     <span className="text-xs text-muted-foreground">
-                      {anyFile ? 'Drop a file or click to browse' : 'Drop image or click to browse'}
+                      {anyFile ? t('Drop a file or click to browse') : t('Drop image or click to browse')}
                     </span>
                     <span className="text-[10px] text-muted-foreground/70">
                       {modKey}+V to paste from clipboard
@@ -453,7 +455,7 @@ export const AttachmentsButton: React.FC<AttachmentsButtonProps> = ({
                   value={manualPath}
                   onChange={(e) => setManualPath(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && !e.nativeEvent.isComposing && handleManualAdd()}
-                  placeholder="Paste path or URL..."
+                  placeholder={t('Paste path or URL...')}
                   className="flex-1 px-2 py-1.5 text-xs bg-background border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                 <button
@@ -462,14 +464,14 @@ export const AttachmentsButton: React.FC<AttachmentsButtonProps> = ({
                   disabled={!manualPath.trim()}
                   className="px-2 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Add
+                  {t('Add')}
                 </button>
               </div>}
 
               {/* Grid of current attachments */}
               {images.length > 0 && (
                 <div className="space-y-2">
-                  <div className="text-xs text-muted-foreground">Current</div>
+                  <div className="text-xs text-muted-foreground">{t('Current')}</div>
                   <div className="grid grid-cols-4 gap-2">
                     {images.map((img) => (
                       <div key={img.path} className="text-center">

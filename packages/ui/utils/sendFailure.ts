@@ -1,3 +1,4 @@
+import { english, type Translate } from './reviewLanguage';
 /**
  * Why a decision POST (send feedback, approve, deny) did not land (#1392).
  *
@@ -71,15 +72,15 @@ export function canRetrySend(failure: SendFailure): boolean {
 }
 
 /** The one sentence under the toast's title: why nothing reached the agent. */
-export function describeSendFailure(failure: SendFailure): string {
+export function describeSendFailure(failure: SendFailure, t: Translate = english): string {
   switch (failure.kind) {
     case 'unreachable':
-      return "Plannotator isn't running or can't be reached.";
+      return t("Plannotator isn't running or can't be reached.");
     case 'rejected':
-      return `Plannotator answered with an error (${failure.status}).`;
+      return t('Plannotator answered with an error ({status}).', { status: failure.status });
     case 'decided':
-      return 'This review was already decided, in another window or because its session ended.';
+      return t('This review was already decided, in another window or because its session ended.');
     default:
-      return 'Something went wrong before it was sent.';
+      return t('Something went wrong before it was sent.');
   }
 }

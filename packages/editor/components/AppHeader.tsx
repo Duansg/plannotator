@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import type { UpdateCheckSetting } from '@plannotator/ui/hooks/useUpdateCheckSetting';
 import type { CookieHostSetting } from '@plannotator/ui/hooks/useCookieHostSetting';
 import React from 'react';
@@ -271,6 +272,7 @@ export const AppHeader = React.memo<AppHeaderProps>(({
   octarineConfigured,
   notionConfigured = false,
 }) => {
+  const t = useTranslate();
   return (
     <header
       data-app-header="true"
@@ -304,7 +306,7 @@ export const AppHeader = React.memo<AppHeaderProps>(({
           className="min-w-0 px-2 text-center text-sm font-medium tracking-tight text-foreground"
           title={compactDocumentTitle}
         >
-          <span className="block truncate">{compactDocumentTitle || 'Plan'}</span>
+          <span className="block truncate">{compactDocumentTitle || t('Plan')}</span>
         </div>
       )}
 
@@ -317,13 +319,13 @@ export const AppHeader = React.memo<AppHeaderProps>(({
               onClick={onCallbackFeedback}
               disabled={isSubmitting || !callbackShareUrlReady}
               isLoading={isSubmitting}
-              title="Send feedback to bot"
+              title={t('Send feedback to bot')}
             />
             <ApproveButton
               onClick={onCallbackApprove}
               disabled={isSubmitting || !callbackShareUrlReady}
               isLoading={isSubmitting}
-              title="Approve design and notify bot"
+              title={t('Approve design and notify bot')}
             />
           </>
         )}
@@ -333,9 +335,9 @@ export const AppHeader = React.memo<AppHeaderProps>(({
             <button
               onClick={onArchiveCopy}
               className="px-2.5 py-1 rounded-md text-xs font-medium transition-all bg-muted text-foreground hover:bg-muted/80 border border-border"
-              title="Copy plan content"
+              title={t('Copy plan content')}
             >
-              <span className="hidden md:inline">Copy</span>
+              <span className="hidden md:inline">{t('Copy')}</span>
               <svg className="w-4 h-4 md:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
@@ -343,9 +345,9 @@ export const AppHeader = React.memo<AppHeaderProps>(({
             <button
               onClick={onArchiveDone}
               className="px-2.5 py-1 rounded-md text-xs font-medium transition-all bg-success text-success-foreground hover:opacity-90"
-              title="Close archive"
+              title={t('Close archive')}
             >
-              Done
+              {t('Done')}
             </button>
           </>
         )}
@@ -356,7 +358,7 @@ export const AppHeader = React.memo<AppHeaderProps>(({
               onClick={onGoalSetupExit}
               disabled={isExiting || goalSetupIsSubmitting}
               isLoading={isExiting}
-              title="Close goal setup without submitting"
+              title={t('Close goal setup without submitting')}
             />
             <ApproveButton
               onClick={onGoalSetupSubmit}
@@ -450,7 +452,7 @@ export const AppHeader = React.memo<AppHeaderProps>(({
             title="A browser agent has used Plannotator's tools in this session. Its comments are marked browser-agent. Turn the tools off in Settings."
           >
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
-            Agent
+            {t('Agent')}
           </span>
         )}
 
@@ -463,7 +465,7 @@ export const AppHeader = React.memo<AppHeaderProps>(({
                 ? 'bg-primary/15 text-primary'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted'
             }`}
-            title={isPanelOpen ? 'Hide annotations' : 'Show annotations'}
+            title={isPanelOpen ? t('Hide annotations') : t('Show annotations')}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
@@ -483,8 +485,8 @@ export const AppHeader = React.memo<AppHeaderProps>(({
                 ? 'bg-primary/15 text-primary'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted'
             }`}
-            title={isAIChatOpen ? 'Hide AI chat' : 'Show AI chat'}
-            aria-label={isAIChatOpen ? 'Hide AI chat' : 'Show AI chat'}
+            title={isAIChatOpen ? t('Hide AI chat') : t('Show AI chat')}
+            aria-label={isAIChatOpen ? t('Hide AI chat') : t('Show AI chat')}
           >
             <SparklesIcon className="w-4 h-4" />
             {aiHasMessages && !isAIChatOpen && (
@@ -557,30 +559,33 @@ export const CompactPlanNavigatorTrigger = ({
 }: {
   open: boolean;
   onToggle: () => void;
-}) => (
-  <button
-    id="pn-compact-plan-navigator-trigger"
-    type="button"
-    onClick={onToggle}
-    data-pn-touch-target="true"
-    data-pn-touch-target-icon="true"
-    data-pn-compact-navigator-trigger="true"
-    className={`flex h-11 w-11 items-center justify-center rounded-lg text-sm font-semibold tracking-tight outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/60 ${
-      open
-        ? 'bg-primary/15 text-primary'
-        : 'text-foreground hover:bg-muted'
-    }`}
-    aria-label={open ? 'Close plan navigator' : 'Open plan navigator'}
-    aria-expanded={open}
-    aria-controls="pn-compact-plan-navigator"
-    title={open ? 'Close navigator' : 'Navigate plan'}
-  >
-    <svg className="h-[18px] w-[18px] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M5 6h14M5 12h14M5 18h9" />
-    </svg>
-    <span className="sr-only">Plan navigation</span>
-  </button>
-);
+}) => {
+  const t = useTranslate();
+  return (
+    <button
+      id="pn-compact-plan-navigator-trigger"
+      type="button"
+      onClick={onToggle}
+      data-pn-touch-target="true"
+      data-pn-touch-target-icon="true"
+      data-pn-compact-navigator-trigger="true"
+      className={`flex h-11 w-11 items-center justify-center rounded-lg text-sm font-semibold tracking-tight outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/60 ${
+        open
+          ? 'bg-primary/15 text-primary'
+          : 'text-foreground hover:bg-muted'
+      }`}
+      aria-label={open ? t('Close plan navigator') : t('Open plan navigator')}
+      aria-expanded={open}
+      aria-controls="pn-compact-plan-navigator"
+      title={open ? t('Close navigator') : t('Navigate plan')}
+    >
+      <svg className="h-[18px] w-[18px] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 6h14M5 12h14M5 18h9" />
+      </svg>
+      <span className="sr-only">{t('Plan navigation')}</span>
+    </button>
+  );
+};
 
 /** "/ notes.md" after the logo: the name cut with an ellipsis when the header
  *  runs short, the full path in the app's tooltip (and to screen readers).

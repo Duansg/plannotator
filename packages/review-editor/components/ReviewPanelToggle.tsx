@@ -1,3 +1,4 @@
+import { useTranslate } from '@plannotator/ui/components/ReviewLanguage';
 import React from 'react';
 import { formatShortcutBindingText, getShortcutPlatform, resolveShortcutBindings } from '@plannotator/ui/shortcuts';
 import { reviewEditorShortcuts } from '../shortcuts';
@@ -13,12 +14,14 @@ export const ReviewPanelToggle: React.FC<{
   const binding = resolveShortcutBindings(reviewEditorShortcuts.shortcuts.toggleSidebar)[0];
   const hint = binding ? ` (${formatShortcutBindingText(binding, getShortcutPlatform())})` : '';
   const dot = !isOpen && (agentRunning || aiUnread);
+  const t = useTranslate();
   const status = [
-    commentCount > 0 ? `${commentCount} ${commentCount === 1 ? 'comment' : 'comments'}` : null,
-    dot && agentRunning ? 'an agent is running' : null,
-    dot && aiUnread ? 'an AI reply is unread' : null,
-  ].filter(Boolean).join(', ');
-  const label = `${isOpen ? 'Close comments, AI and agents' : 'Open comments, AI and agents'}${status ? `: ${status}` : ''}`;
+    commentCount > 0 ? t(commentCount === 1 ? '{count} comment' : '{count} comments', { count: commentCount }) : null,
+    dot && agentRunning ? t('an agent is running') : null,
+    dot && aiUnread ? t('an AI reply is unread') : null,
+  ].filter(Boolean).join(t(', '));
+  const action = t(isOpen ? 'Close comments, AI and agents' : 'Open comments, AI and agents');
+  const label = status ? t('{action}: {status}', { action, status }) : action;
   return (
     <button
       type="button"

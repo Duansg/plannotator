@@ -1,3 +1,4 @@
+import { useTranslate } from '../ReviewLanguage';
 /**
  * ArchiveBrowser — Browsable list of saved plan decisions
  *
@@ -36,10 +37,11 @@ export const ArchiveBrowser: React.FC<ArchiveBrowserProps> = ({
   onSelect,
   isLoading,
 }) => {
+  const t = useTranslate();
   if (isLoading) {
     return (
       <div className="p-4 text-xs text-muted-foreground text-center">
-        Loading archive...
+        {t('Loading archive...')}
       </div>
     );
   }
@@ -47,7 +49,7 @@ export const ArchiveBrowser: React.FC<ArchiveBrowserProps> = ({
   if (plans.length === 0) {
     return (
       <div className="p-4 text-xs text-muted-foreground text-center">
-        No archived plans found.
+        {t('No archived plans found.')}
       </div>
     );
   }
